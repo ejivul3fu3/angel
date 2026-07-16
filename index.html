@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小天使配對總覽</title>
+<style>
+  :root{
+    --bg:#F6F4EE;
+    --card:#FFFFFF;
+    --ink:#2B3A34;
+    --ink-soft:#5C6B63;
+    --line:#E3E0D5;
+    --sage:#4F7A6B;
+    --sage-deep:#345A4C;
+    --sage-pale:#E4EFE9;
+    --amber:#C98A3A;
+    --amber-pale:#FBEEDD;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.6;
+    padding:32px 20px 100px;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  h1{
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 6px;
+    color:var(--sage-deep);
+    letter-spacing:0.02em;
+  }
+  .sub{color:var(--ink-soft);font-size:14px;}
+  .stats{
+    display:flex;gap:12px;flex-wrap:wrap;
+    margin:20px 0 24px;
+  }
+  .stat{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 18px;
+    min-width:100px;
+  }
+  .stat.action{
+    cursor:pointer;
+    background:var(--amber-pale);
+    border-color:transparent;
+  }
+  .stat.action:hover{ filter:brightness(0.97); }
+  .stat .num{font-size:22px;font-weight:700;color:var(--sage-deep);}
+  .stat.action .num{color:#8A5A1E;}
+  .stat .lab{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .stat.action .lab{color:#8A5A1E;display:flex;align-items:center;gap:4px;}
+
+  .toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;
+    margin-bottom:14px;
+    position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;
+  }
+  input[type="text"]{
+    flex:1;min-width:200px;
+    padding:11px 14px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:14px;
+    background:var(--card);
+    color:var(--ink);
+    outline:none;
+  }
+  input[type="text"]:focus{border-color:var(--sage);}
+  .tabs{display:flex;gap:6px;}
+  .tab{
+    padding:10px 16px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    font-size:14px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--sage);
+    border-color:var(--sage);
+    color:#fff;
+  }
+  .viewbar{
+    display:flex;gap:6px;margin-bottom:18px;
+  }
+
+  .angel-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 20px;
+    margin-bottom:12px;
+    scroll-margin-top:80px;
+  }
+  .angel-card.flash{ animation: flashHi 1.6s ease; }
+  @keyframes flashHi{
+    0%{ background:var(--amber-pale); }
+    100%{ background:var(--card); }
+  }
+  .angel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;
+  }
+  .angel-name{
+    font-size:16px;font-weight:700;color:var(--sage-deep);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .count-badge{
+    background:var(--sage-pale);
+    color:var(--sage-deep);
+    font-size:12px;font-weight:700;
+    padding:2px 10px;border-radius:999px;
+  }
+  .group-tag{
+    font-size:11px;font-weight:500;
+    border:1px solid transparent;
+    padding:2px 9px;border-radius:999px;
+  }
+  .chev{color:var(--ink-soft);transition:transform .15s ease;font-size:12px;}
+  .angel-card.open .chev{transform:rotate(90deg);}
+
+  .case-list{
+    display:none;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .angel-card.open .case-list{display:block;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{
+    text-align:left;color:var(--ink-soft);font-weight:500;
+    font-size:12px;padding:0 8px 8px;
+  }
+  td{padding:8px;border-top:1px solid var(--line);}
+  td.batch{color:var(--ink-soft);white-space:nowrap;width:70px;}
+  td.no{color:var(--ink-soft);white-space:nowrap;width:80px;}
+  td.name{font-weight:500;}
+  td.note{color:var(--amber);font-size:12.5px;}
+
+  .empty{
+    text-align:center;color:var(--ink-soft);
+    padding:40px 0;font-size:14px;
+  }
+
+  .group-panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 18px 16px;
+    margin-bottom:20px;
+  }
+  .group-panel-title{
+    font-size:13px;font-weight:700;color:var(--sage-deep);
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .group-panel-title .hint{
+    font-weight:400;color:var(--ink-soft);font-size:12px;
+  }
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid transparent;
+    background:var(--sage-pale);
+    color:var(--sage-deep);
+    font-size:13px;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .chip .n{
+    background:rgba(255,255,255,0.6);
+    border-radius:999px;
+    padding:0 7px;
+    font-size:11px;
+    font-weight:700;
+  }
+  .chip.active{ color:#fff; }
+  .chip.active .n{background:rgba(255,255,255,0.28);}
+  .chip.ungrouped{
+    background:#EDEBE3;
+    color:#6B6355;
+  }
+  .chip.ungrouped.active{
+    background:#6B6355;
+    color:#fff;
+  }
+  .chip.allchip.active{
+    background:var(--sage);
+  }
+
+  .flag-pale{
+    background:var(--amber-pale);
+    color:#8A5A1E;
+    font-size:11px;
+    padding:2px 8px;border-radius:999px;
+    margin-left:6px;
+  }
+
+  .batch-section{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 20px;
+    margin-bottom:14px;
+  }
+  .batch-header{
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .batch-title{font-size:16px;font-weight:700;color:var(--sage-deep);}
+  .batch-date{
+    font-size:12px;color:var(--ink-soft);
+    background:var(--sage-pale);
+    padding:2px 10px;border-radius:999px;
+  }
+  .batch-count{font-size:12px;color:var(--ink-soft);}
+  .batch-empty{color:var(--ink-soft);font-size:13px;padding:6px 2px;}
+
+  .unassigned-section{
+    margin-top:36px;
+    scroll-margin-top:80px;
+  }
+  .unassigned-title{
+    font-size:18px;font-weight:700;color:var(--sage-deep);
+    margin-bottom:4px;
+  }
+  .unassigned-sub{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+  .unassigned-row{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 18px;
+    margin-bottom:10px;
+  }
+  .unassigned-name{
+    font-size:15px;font-weight:700;color:var(--sage-deep);
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .action-row{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  }
+  select{
+    padding:9px 10px;border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--card);color:var(--ink);
+    font-size:13px;min-width:140px;
+  }
+  .btn{
+    padding:9px 16px;border-radius:10px;
+    border:1px solid var(--sage);
+    background:var(--sage);color:#fff;
+    font-size:13px;font-weight:500;
+    cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{ filter:brightness(1.05); }
+  .btn.ghost{
+    background:transparent;color:var(--sage-deep);
+  }
+  .divider-or{
+    color:var(--ink-soft);font-size:12px;
+    padding:0 4px;
+  }
+  .caseinput{
+    padding:9px 12px;border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--card);color:var(--ink);
+    font-size:13px;min-width:160px;
+  }
+  .reset-link{
+    font-size:12px;color:var(--ink-soft);
+    text-decoration:underline;cursor:pointer;
+    margin-top:18px;display:inline-block;
+  }
+
+  .track-summary{
+    display:flex;gap:12px;flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .track-card{
+    flex:1;min-width:180px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  .track-card .tc-top{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:8px;
+  }
+  .track-card .tc-label{font-size:13px;font-weight:700;color:var(--sage-deep);}
+  .track-card .tc-num{font-size:12px;color:var(--ink-soft);}
+  .progress-bar{
+    height:8px;border-radius:999px;background:var(--sage-pale);overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;background:var(--sage);border-radius:999px;
+  }
+  .track-table th, .track-table td{ text-align:center; }
+  .track-table th:nth-child(1), .track-table th:nth-child(2), .track-table th:nth-child(3){ text-align:left; }
+  .track-table td:nth-child(1), .track-table td:nth-child(2), .track-table td:nth-child(3){ text-align:left; }
+  .track-table input[type="checkbox"]{
+    width:18px;height:18px;cursor:pointer;accent-color:var(--sage);
+  }
+  .track-section{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h1>小天使配對總覽</h1>
+        <div class="sub">依小天使、依批次整理個案，也可以在「追蹤進度」勾選同學會／課後課／圓夢計畫</div>
+      </div>
+      <button class="btn" id="copyAnnounceBtn" style="white-space:nowrap;">複製配對公告</button>
+      <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyNewStudentBtn">複製新生配對名單（近三批）</button>
+      <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyAllBatchBtn">複製全部批次配對名單</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="group-panel">
+    <div class="group-panel-title">小天使培訓時間</div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px;">
+          <span class="batch-date" style="background:var(--sage-pale);color:var(--sage-deep);">8/10</span>
+          <span style="font-weight:700;color:var(--sage-deep);">新生成為小天使的培訓</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="formLink1" class="caseinput" style="flex:1;" placeholder="報名表單連結（之後貼上）" />
+          <button class="btn ghost" style="border:1px solid var(--sage);" data-copy-form="formLink1" data-title="8/10　新生成為小天使的培訓">複製連結</button>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;">
+        <div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px;">
+          <span class="batch-date" style="background:var(--amber-pale);color:#8A5A1E;">8/23　下午 1:00－6:00</span>
+          <span style="font-weight:700;color:var(--sage-deep);">準小天使培訓</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="formLink2" class="caseinput" style="flex:1;" placeholder="報名表單連結（之後貼上）" />
+          <button class="btn ghost" style="border:1px solid var(--sage);" data-copy-form="formLink2" data-title="8/23　下午 1:00－6:00　準小天使培訓">複製連結</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group-panel">
+    <div class="group-panel-title">大天使<span class="hint">點選大天使，下方連動篩選其成員</span></div>
+    <div class="chip-row" id="groupChips"></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);">
+      <span><span class="group-tag" style="background:var(--sage-pale);color:var(--sage-deep);">大天使：一、特特</span> = 所屬大天使組別</span>
+      <span><span class="flag-pale">待配對</span> = 目前沒有小夥伴也沒有搭檔</span>
+      <span>展開卡片可看小夥伴明細，搭檔小天使會列在同一張表格裡並註明「身份：小天使」</span>
+    </div>
+  </div>
+
+  <div class="viewbar">
+    <div class="tab active" data-view="angel">依小天使</div>
+    <div class="tab" data-view="batch">依批次</div>
+    <div class="tab" data-view="track">追蹤進度</div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="搜尋小天使姓名或小夥伴姓名..." />
+    <div class="tabs" id="sortTabs">
+      <div class="tab active" data-sort="count">依人數</div>
+      <div class="tab" data-sort="name">依姓名</div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <div class="empty" id="empty" style="display:none;">找不到符合的資料</div>
+
+  <div class="unassigned-section" id="unassigned">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+      <div class="unassigned-title">待配對 / 待分配小夥伴</div>
+      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUnassignedBtn">複製名單</button>
+    </div>
+    <div class="unassigned-sub">這些小天使目前還沒有搭檔、也還沒配到小夥伴。直接在下面幫他們配對或輸入小夥伴姓名，送出後就會自動歸類到上面對應的位置。</div>
+    <div id="unassignedList"></div>
+    <span class="reset-link" id="resetLink">清除我手動指派的小夥伴紀錄</span>
+  </div>
+
+  <div class="unassigned-section" id="ungroupedSection">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+      <div class="unassigned-title">未分配大天使</div>
+      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUngroupedBtn">複製名單</button>
+    </div>
+    <div class="unassigned-sub">這些小天使目前還沒有歸屬的大天使組別。選好組別按「指派」，就會直接歸類到上面對應的大天使底下。</div>
+    <div id="groupRoster" style="margin-bottom:18px;"></div>
+    <div id="ungroupedAssignList"></div>
+    <span class="reset-link" id="resetGroupLink">清除我手動指派的組別紀錄</span>
+  </div>
+
+  <div class="unassigned-section" id="partnerSection">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+      <div class="unassigned-title">已配對搭檔的小天使</div>
+      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyPartnerBtn">複製名單</button>
+    </div>
+    <div class="unassigned-sub">這裡是小天使跟小天使互相配對的搭檔關係（不是小夥伴配對），固定是 2 人一組。</div>
+    <div id="partnerList"></div>
+    <span class="reset-link" id="resetTeamsLink">清除所有搭檔小組，回到預設值</span>
+  </div>
+</div>
+
+<script>
+// 大天使分組（供標示組別參考）
+const groupOf = {};
+const groups = {
+  "特特": ["特特","vigor","哲豪","Mina","湘庭Gin","77","冠蓁"],
+  "小珠": ["小珠","蜜卡","冠臻","阿棠","書書","楊雲","小束"],
+  "韋萱": ["韋萱","依涵（菲菲）","翠貞","威儀","君君","駿駿","陳姵瑄"],
+  "Yoyo": ["Yoyo","薏涵","楊楊","菜心","彩棠","王岑芯","佳霖Zora"],
+  "Linda": ["Linda","Yvoone（依樺）","至平","慈筠","夢昕","明貞Sabrina Li","古雅婷"],
+  "鎮宏": ["鎮宏","國順","KC","銘余","Anne","盧捷偉／泰安產物","文瑜","葳樺"],
+};
+const GROUP_ORDER_LABEL = {
+  "特特": "一", "小珠": "二", "韋萱": "三", "Yoyo": "四", "Linda": "五", "鎮宏": "六",
+};
+function groupDisplayName(g){ return GROUP_ORDER_LABEL[g] ? `${GROUP_ORDER_LABEL[g]}、${g}` : g; }
+for(const g in groups){ groups[g].forEach(n=>groupOf[n]=g); }
+
+// 手動指派的大天使組別（存在瀏覽器本機）
+let manualGroups = {};
+try{
+  manualGroups = JSON.parse(localStorage.getItem("angelManualGroups") || "{}");
+}catch(e){ manualGroups = {}; }
+Object.keys(manualGroups).forEach(n=>{
+  groupOf[n] = manualGroups[n];
+  if(!groups[manualGroups[n]].includes(n)) groups[manualGroups[n]].push(n);
+});
+function saveManualGroups(){
+  localStorage.setItem("angelManualGroups", JSON.stringify(manualGroups));
+}
+
+// 大天使分組顏色（淺底／深字）
+const GROUP_COLORS = {
+  "特特": {bg:"#E1F0EA", text:"#1F6B54"},
+  "小珠": {bg:"#FBE3DA", text:"#9C4423"},
+  "韋萱": {bg:"#FBEEC7", text:"#8A6A0A"},
+  "Yoyo": {bg:"#DCEAF5", text:"#1F5C82"},
+  "Linda":{bg:"#F3E1EE", text:"#7A3465"},
+  "鎮宏": {bg:"#E7EEDA", text:"#4C5C1E"},
+};
+
+// 同一人的別名/全名補充（僅顯示用，不影響配對比對）
+const akaOf = {
+  "威儀": "江威儀",
+  "楊楊": "楊子軒",
+  "小束": "束其涵",
+  "特特": "瓦特",
+  "小珠": "王小珠",
+  "楊雲": "雲雲",
+  "駿駿": "黃怡駿",
+  "哲豪": "許哲豪",
+  "鎮宏": "陳鎮宏",
+};
+
+// 批次日期對照
+const BATCH_INFO = {
+  "1-87": {date:"8/1－8/4"},
+  "1-88": {date:"8/6－8/9"},
+  "1-89": {date:"8/11－8/14"},
+  "3-21": {date:"7/4－7/7"},
+  "3-22": {date:"7/9－7/12"},
+  "3-23": {date:"7/14－7/17"},
+};
+const BATCH_ORDER = ["1-87","1-88","1-89","3-21","3-22","3-23"];
+
+// 個案配對資料（批次、個案編號、個案姓名、小天使、備註）
+const cases = [
+  {batch:"1-87", no:"30190", group:"15-1", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"徐以倫", angel:"鎮宏", note:""},
+  {batch:"1-87", no:"30190", group:"15-1", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"徐以倫", angel:"KC", note:""},
+  {batch:"1-87", no:"32212", group:"15-4", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"王秋燕", angel:"蜜卡", note:""},
+  {batch:"1-87", no:"32215", group:"20-2", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"杜淑卿", angel:"Yvoone（依樺）", note:""},
+  {batch:"1-87", no:"32727", group:"15-2", referrer:"8501_石至平", careWorker:"8501_石至平", name:"陳冠維", angel:"至平", note:"OR Linda"},
+  {batch:"1-87", no:"", name:"鍾昌涓", angel:"特特", note:"延期"},
+  {batch:"1-88", no:"33062", group:"15-3", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林淑真", angel:"韋萱", note:""},
+  {batch:"1-88", no:"33404", group:"15-4", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林素惠", angel:"韋萱", note:""},
+  {batch:"1-88", no:"33506", group:"15-1", referrer:"22964_黃蘋", careWorker:"2331_謝涵汝", name:"周金柱", angel:"銘余", note:""},
+  {batch:"1-88", no:"33780", group:"15-2", referrer:"7235_王岑芯（瓦特）", careWorker:"7235_王岑芯", name:"鄭家妤", angel:"特特", note:""},
+  {batch:"1-89", no:"32633", referrer:"4593_陳書麟", careWorker:"3630_楊宗益", name:"張薏宣", angel:"vigor", note:""},
+  {batch:"1-89", no:"32729", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林樹詮", angel:"哲豪", note:"岑芯的朋友"},
+  {batch:"1-89", no:"32736", referrer:"10637_王薏涵", careWorker:"7235_王岑芯", name:"廖絲環", angel:"薏涵", note:""},
+  {batch:"1-89", no:"33011", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林純安", angel:"Yoyo", note:""},
+  {batch:"1-89", no:"33107", referrer:"4709_張國順", careWorker:"2331_謝涵汝", name:"林子傑", angel:"國順", note:""},
+  {batch:"1-89", no:"33346", referrer:"5582_邱劭瑜", careWorker:"2331_謝涵汝", name:"黃晉慶", angel:"至平", note:""},
+  {batch:"1-89", no:"33641", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"李鈴靜", angel:"小珠", note:""},
+  {batch:"3-21", no:"22566", referrer:"12895_李佳怡", careWorker:"10436_周書儀", name:"黃湘庭", angel:"書書", note:""},
+  {batch:"3-21", no:"14595", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林千翔", angel:"哲豪", note:""},
+  {batch:"3-21", no:"25616", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"唐玉潔", angel:"翠貞", note:""},
+  {batch:"3-21", no:"20178", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"陳韋萱", angel:"翠貞", note:""},
+  {batch:"3-21", no:"28368", referrer:"12895_李佳怡", careWorker:"10436_周書儀", name:"許哲豪", angel:"盧捷偉／泰安產物", note:""},
+  {batch:"3-21", no:"28728", referrer:"6582_楊雲", careWorker:"6582_楊雲", name:"鄭晴文", angel:"楊雲", note:""},
+  {batch:"3-21", no:"29420", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"黃雅琪", angel:"君君", note:""},
+  {batch:"3-21", no:"28660", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"許玲慧", angel:"翠貞", note:""},
+  {batch:"3-21", no:"2586", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"王麗華", angel:"Anne", note:""},
+  {batch:"3-22", no:"22237", group:"12-3", referrer:"6527_鄭文瑜", careWorker:"6527_鄭文瑜", name:"涂晧怡", angel:"文瑜", note:""},
+  {batch:"3-22", no:"9365", group:"12-4", referrer:"3773_蔡葳樺", careWorker:"3773_蔡葳樺", name:"林嘉慈", angel:"葳樺", note:""},
+  {batch:"3-22", no:"9266", group:"12-5", referrer:"4137_詹依宛", careWorker:"2331_謝涵汝", name:"闕嘉凡", angel:"Anne", note:""},
+  {batch:"3-23", no:"28455", group:"38-2", referrer:"26535_江威儀", careWorker:"13063_葉翠貞", name:"周歆凌", angel:"君君", note:""},
+  {batch:"3-23", no:"26535", group:"10-6", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"江威儀", angel:"翠貞", note:""},
+  {batch:"3-23", no:"29197", group:"38-5", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"古羽庭", angel:"薏涵", note:""},
+  {batch:"3-23", no:"22757", group:"38-3", referrer:"16000_莊書怡", careWorker:"7235_王岑芯", name:"黃芯璿", angel:"77", note:""},
+  {batch:"3-23", no:"9694", group:"38-4", referrer:"7366_鄭宇辰", careWorker:"3384_李明貞", name:"王成毓", angel:"阿棠", note:""},
+];
+
+// 新增小天使（目前尚無配對個案）
+const extraAngels = ["駿駿","慈筠","彩棠","小束","夢昕","冠蓁","湘庭Gin","盧捷偉／泰安產物","王岑芯","明貞Sabrina Li","佳霖Zora","陳姵瑄","古雅婷"];
+
+// 小天使搭檔小組（可以是 2 人或 3 人一組，互相合作，非小夥伴配對）
+const DEFAULT_TEAMS = [
+  ["Mina","冠蓁"],
+  ["楊楊","菜心"],
+  ["慈筠","駿駿"],
+];
+
+// ---- 讀取手動輸入的紀錄（存在瀏覽器本機） ----
+let manualCases = [];
+let teams = [];
+try{
+  manualCases = JSON.parse(localStorage.getItem("angelManualCases") || "[]");
+}catch(e){ manualCases = []; }
+try{
+  const saved = JSON.parse(localStorage.getItem("angelTeams") || "null");
+  teams = saved !== null ? saved : DEFAULT_TEAMS.map(t=>t.slice());
+}catch(e){ teams = DEFAULT_TEAMS.map(t=>t.slice()); }
+cases.push(...manualCases);
+
+function saveManual(){
+  localStorage.setItem("angelManualCases", JSON.stringify(manualCases));
+}
+function saveTeams(){
+  localStorage.setItem("angelTeams", JSON.stringify(teams));
+}
+function findTeam(name){
+  return teams.find(t=>t.includes(name)) || null;
+}
+function teammatesOf(name){
+  const t = findTeam(name);
+  return t ? t.filter(n=>n!==name) : [];
+}
+
+// 這幾位這次先不安排配對（例如身為大天使，這輪不分配新生或搭檔）
+const PENDING_EXEMPT = ["Linda"];
+function isPending(name){
+  return byAngel[name].length===0 && teammatesOf(name).length===0 && !PENDING_EXEMPT.includes(name);
+}
+
+// ---- 追蹤紀錄：同學會 / 課後課 / 陪伴小夥伴圓夢計畫 ----
+const TRACK_FIELDS = [
+  {key:"reunion", label:"同學會"},
+  {key:"afterclass", label:"課後課"},
+  {key:"dream", label:"圓夢計畫"},
+];
+let trackData = {};
+try{
+  trackData = JSON.parse(localStorage.getItem("angelTrackData") || "{}");
+}catch(e){ trackData = {}; }
+function caseKey(c){ return `${c.batch}|${c.no}|${c.name}|${c.angel}`; }
+function saveTrack(){
+  localStorage.setItem("angelTrackData", JSON.stringify(trackData));
+}
+function getTrack(c, field){
+  const k = caseKey(c);
+  return !!(trackData[k] && trackData[k][field]);
+}
+function setTrack(c, field, val){
+  const k = caseKey(c);
+  if(!trackData[k]) trackData[k] = {};
+  trackData[k][field] = val;
+  saveTrack();
+}
+
+// 依小天使分組
+const byAngel = {};
+function rebuildByAngel(){
+  Object.keys(byAngel).forEach(k=>delete byAngel[k]);
+  cases.forEach(c=>{
+    if(!byAngel[c.angel]) byAngel[c.angel]=[];
+    byAngel[c.angel].push(c);
+  });
+  extraAngels.forEach(n=>{ if(!byAngel[n]) byAngel[n]=[]; });
+  Object.keys(groupOf).forEach(n=>{ if(!byAngel[n]) byAngel[n]=[]; });
+}
+rebuildByAngel();
+
+let sortMode = "count";
+let query = "";
+let selectedGroup = "ALL";
+let viewMode = "angel";
+
+function renderGroupChips(){
+  const chipRow = document.getElementById("groupChips");
+  const allNames = Object.keys(byAngel);
+  const ungroupedCount = allNames.filter(n=>!groupOf[n]).length;
+
+  const chips = [];
+  chips.push({key:"ALL", label:"全部", count:allNames.length, cls:"allchip"});
+  Object.keys(groups).forEach(g=>{
+    const cnt = allNames.filter(n=>groupOf[n]===g).length;
+    chips.push({key:g, label:groupDisplayName(g), count:cnt, cls:"", colored:true});
+  });
+  chips.push({key:"UNGROUPED", label:"未分組", count:ungroupedCount, cls:"ungrouped"});
+
+  chipRow.innerHTML = chips.map(c=>{
+    const isActive = selectedGroup===c.key;
+    let style = "";
+    if(c.colored){
+      const col = GROUP_COLORS[c.key];
+      style = isActive
+        ? `style="background:${col.text};color:#fff;"`
+        : `style="background:${col.bg};color:${col.text};"`;
+    }
+    return `
+    <div class="chip ${c.cls} ${isActive?"active":""}" data-key="${c.key}" ${style}>
+      ${c.label}<span class="n">${c.count}</span>
+    </div>
+  `;
+  }).join("");
+
+  chipRow.querySelectorAll(".chip").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      selectedGroup = el.dataset.key;
+      render();
+    });
+  });
+}
+
+// 統一的複製小工具：優先用 Clipboard API，失敗就用隱藏 textarea + execCommand，
+// 兩個都失敗的話跳出可以手動 Ctrl+C 的視窗（file:// 開啟時常常需要這個備援）
+function copyToClipboard(text){
+  return new Promise((resolve, reject)=>{
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(resolve).catch(()=>{
+        fallbackCopyViaTextarea(text) ? resolve() : reject();
+      });
+    } else {
+      fallbackCopyViaTextarea(text) ? resolve() : reject();
+    }
+  });
+}
+function fallbackCopyViaTextarea(text){
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.style.top = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){
+    return false;
+  }
+}
+function copyWithFeedback(btn, text, successLabel){
+  copyToClipboard(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = successLabel || "已複製";
+    setTimeout(()=>{ btn.textContent = old; }, 1600);
+  }).catch(()=>{
+    window.prompt("自動複製失敗，請手動按 Ctrl+C（Mac 是 Cmd+C）複製以下內容：", text);
+  });
+}
+
+// 有些瀏覽器/預覽環境會擋掉 confirm() 彈窗（直接視為取消），
+// 改用「按兩次才生效」的方式做確認，避免整個操作被靜默擋掉
+function armConfirm(btn, confirmLabel, onConfirm){
+  if(btn.dataset.armed==="1"){
+    onConfirm();
+    return;
+  }
+  btn.dataset.armed = "1";
+  const old = btn.textContent;
+  const oldBg = btn.style.background;
+  btn.textContent = confirmLabel;
+  btn.style.background = "var(--amber)";
+  btn.style.color = "#fff";
+  btn.style.borderColor = "var(--amber)";
+  const revert = ()=>{
+    btn.dataset.armed = "0";
+    btn.textContent = old;
+    btn.style.background = oldBg;
+    btn.style.color = "";
+    btn.style.borderColor = "";
+  };
+  btn._revertTimer = setTimeout(revert, 3000);
+}
+
+function angelLabel(name){
+  return name + (akaOf[name] ? `<span style="font-weight:400;color:var(--ink-soft);font-size:12.5px;">（${akaOf[name]}）</span>` : "");
+}
+
+function renderAngelView(names){
+  const listEl = document.getElementById("list");
+  const emptyEl = document.getElementById("empty");
+  const q = query.trim().toLowerCase();
+
+  let filtered = names.filter(n=>{
+    if(!q) return true;
+    if(n.toLowerCase().includes(q)) return true;
+    return byAngel[n].some(c=>c.name.toLowerCase().includes(q));
+  });
+
+  function dispCount(n){ return byAngel[n].length + teammatesOf(n).length; }
+  if(sortMode==="count"){
+    filtered.sort((a,b)=> dispCount(b) - dispCount(a) || a.localeCompare(b,'zh-Hant'));
+  } else {
+    filtered.sort((a,b)=> a.localeCompare(b,'zh-Hant'));
+  }
+
+  listEl.innerHTML = "";
+  emptyEl.style.display = filtered.length ? "none" : "block";
+
+  filtered.forEach(name=>{
+    const list = byAngel[name];
+    const visibleCases = q ? list.filter(c=> name.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)) : list;
+    const g = groupOf[name];
+
+    const card = document.createElement("div");
+    card.className = "angel-card";
+    card.dataset.name = name;
+
+    const rows = visibleCases.map(c=>`
+      <tr>
+        <td class="batch">${c.batch}</td>
+        <td class="no">${c.no||"—"}</td>
+        <td class="name">${c.name}</td>
+        <td class="note">${c.note||""}</td>
+      </tr>
+    `).join("");
+
+    const teammates = teammatesOf(name);
+    const partnerRow = teammates.map(t=>`
+      <tr>
+        <td class="batch">—</td>
+        <td class="no">—</td>
+        <td class="name">${angelLabel(t)}</td>
+        <td class="note">身份：小天使（搭檔）</td>
+      </tr>
+    `).join("");
+
+    const groupBadge = g ? `<span class="group-tag" style="background:${GROUP_COLORS[g].bg};color:${GROUP_COLORS[g].text};">大天使：${groupDisplayName(g)}</span>` : "";
+    const hasAnyRow = list.length>0 || teammates.length>0;
+    const isExempt = PENDING_EXEMPT.includes(name);
+    const pendingFlag = hasAnyRow ? "" : (isExempt ? `<span class="group-tag" style="background:var(--sage-pale);color:var(--sage-deep);">這次先不分配</span>` : `<span class="flag-pale">待配對</span>`);
+    const displayCount = list.length + teammates.length;
+
+    card.innerHTML = `
+      <div class="angel-head">
+        <div class="angel-name">
+          ${angelLabel(name)}
+          <span class="count-badge">${displayCount} 位</span>
+          ${groupBadge}
+          ${pendingFlag}
+        </div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="case-list">
+        ${hasAnyRow ? `
+        <table>
+          <thead><tr><th>批次</th><th>編號</th><th>小夥伴姓名</th><th>備註</th></tr></thead>
+          <tbody>${rows}${partnerRow}</tbody>
+        </table>` : `<div style="color:var(--ink-soft);font-size:13px;padding:4px 8px;">${isExempt ? "這次先不分配新生或搭檔" : "目前尚無配對"}</div>`}
+      </div>
+    `;
+    card.querySelector(".angel-head").addEventListener("click", ()=>{
+      card.classList.toggle("open");
+    });
+    if(q) card.classList.add("open");
+    listEl.appendChild(card);
+  });
+}
+
+function renderBatchView(names){
+  const listEl = document.getElementById("list");
+  const emptyEl = document.getElementById("empty");
+  const q = query.trim().toLowerCase();
+  const nameSet = new Set(names);
+
+  const visibleBatches = BATCH_ORDER.filter(b=>{
+    const rows = cases.filter(c=>c.batch===b && nameSet.has(c.angel));
+    if(!q) return true;
+    return rows.some(c=> c.name.toLowerCase().includes(q) || c.angel.toLowerCase().includes(q));
+  });
+
+  listEl.innerHTML = "";
+  emptyEl.style.display = "none";
+
+  visibleBatches.forEach(b=>{
+    let rows = cases.filter(c=>c.batch===b && nameSet.has(c.angel));
+    if(q){
+      rows = rows.filter(c=> c.name.toLowerCase().includes(q) || c.angel.toLowerCase().includes(q));
+    }
+    const date = BATCH_INFO[b] ? BATCH_INFO[b].date : "";
+
+    // 同一批次、同一位小夥伴若有多位小天使，合併成同一列顯示
+    const merged = [];
+    const indexOf = {};
+    rows.forEach(c=>{
+      const key = c.no + "|" + c.name;
+      if(indexOf[key]===undefined){
+        indexOf[key] = merged.length;
+        merged.push({no:c.no, name:c.name, group:c.group||"", referrer:c.referrer||"", careWorker:c.careWorker||"", angels:[c.angel], notes: c.note ? [c.note] : []});
+      } else {
+        const m = merged[indexOf[key]];
+        m.angels.push(c.angel);
+        if(c.note && !m.notes.includes(c.note)) m.notes.push(c.note);
+      }
+    });
+
+    const section = document.createElement("div");
+    section.className = "batch-section";
+
+    const rowsHtml = merged.map(m=>`
+      <tr>
+        <td class="no">${m.group||"—"}</td>
+        <td class="no">${m.no||"—"}</td>
+        <td class="name">${m.name}</td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap;">${m.angels.map(a=>`<span class="group-tag" style="background:var(--sage-pale);color:var(--sage-deep);">${angelLabel(a)}</span>`).join("")}</div></td>
+        <td class="note">${m.referrer||"—"}</td>
+        <td class="note">${m.careWorker||"—"}</td>
+        <td class="note">${m.notes.join("、")}</td>
+      </tr>
+    `).join("");
+
+    section.innerHTML = `
+      <div class="batch-header">
+        <span class="batch-title">${b}</span>
+        ${date ? `<span class="batch-date">${date}</span>` : ""}
+        <span class="batch-count">共 ${merged.length} 位小夥伴</span>
+        <button class="btn ghost" style="border:1px solid var(--sage);margin-left:auto;" data-copy-batch="${b}">複製這批</button>
+      </div>
+      ${merged.length ? `
+      <table>
+        <thead><tr><th>組別</th><th>編號</th><th>小夥伴姓名</th><th>小天使</th><th>介紹人</th><th>關懷員</th><th>備註</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>` : `<div class="batch-empty">目前尚無個案資料</div>`}
+    `;
+    listEl.appendChild(section);
+  });
+
+  listEl.querySelectorAll("[data-copy-batch]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const b = btn.dataset.copyBatch;
+      const text = generateBatchBlock(b).join("\n");
+      copyWithFeedback(btn, text, "已複製");
+    });
+  });
+}
+
+function renderTrackView(names){
+  const listEl = document.getElementById("list");
+  const emptyEl = document.getElementById("empty");
+  emptyEl.style.display = "none";
+  const q = query.trim().toLowerCase();
+  const nameSet = new Set(names);
+
+  let rows = cases.filter(c=> nameSet.has(c.angel));
+  if(q){
+    rows = rows.filter(c=> c.name.toLowerCase().includes(q) || c.angel.toLowerCase().includes(q));
+  }
+  rows = rows.slice().sort((a,b)=> a.batch.localeCompare(b.batch) || a.name.localeCompare(b.name,'zh-Hant'));
+
+  const totals = {};
+  TRACK_FIELDS.forEach(f=> totals[f.key]=0);
+  rows.forEach(c=> TRACK_FIELDS.forEach(f=>{ if(getTrack(c,f.key)) totals[f.key]++; }));
+
+  const summaryHtml = `
+    <div class="track-summary">
+      ${TRACK_FIELDS.map(f=>{
+        const pct = rows.length ? Math.round(totals[f.key]/rows.length*100) : 0;
+        return `
+        <div class="track-card">
+          <div class="tc-top">
+            <span class="tc-label">${f.label}</span>
+            <span class="tc-num">${totals[f.key]} / ${rows.length}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+
+  const bodyRows = rows.map(c=>{
+    const key = caseKey(c);
+    return `
+      <tr>
+        <td class="batch">${c.batch}</td>
+        <td class="name">${c.name}</td>
+        <td>${angelLabel(c.angel)}</td>
+        ${TRACK_FIELDS.map(f=>`<td><input type="checkbox" data-key="${key}" data-field="${f.key}" ${getTrack(c,f.key)?"checked":""}></td>`).join("")}
+      </tr>
+    `;
+  }).join("");
+
+  listEl.innerHTML = `
+    ${summaryHtml}
+    <div class="track-section">
+      ${rows.length ? `
+      <table class="track-table">
+        <thead><tr><th>批次</th><th>小夥伴姓名</th><th>小天使</th>${TRACK_FIELDS.map(f=>`<th>${f.label}</th>`).join("")}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>` : `<div class="empty">找不到符合的資料</div>`}
+    </div>
+  `;
+
+  listEl.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const c = rows.find(r=> caseKey(r)===cb.dataset.key);
+      setTrack(c, cb.dataset.field, cb.checked);
+      renderTrackView(names);
+    });
+  });
+}
+
+function render(){
+  let names = Object.keys(byAngel);
+
+  if(selectedGroup==="UNGROUPED"){
+    names = names.filter(n=>!groupOf[n]);
+  } else if(selectedGroup!=="ALL"){
+    names = names.filter(n=>groupOf[n]===selectedGroup);
+  }
+
+  if(viewMode==="angel"){
+    renderAngelView(names);
+  } else if(viewMode==="batch"){
+    renderBatchView(names);
+  } else {
+    renderTrackView(names);
+  }
+
+  const totalCasesInView = names.reduce((sum,n)=>sum+byAngel[n].length,0);
+  const allNames = Object.keys(byAngel);
+  const pendingCount = allNames.filter(n=> isPending(n)).length;
+
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><div class="num">${names.length}</div><div class="lab">位小天使</div></div>
+    <div class="stat"><div class="num">${totalCasesInView}</div><div class="lab">位小夥伴</div></div>
+    <div class="stat action" id="pendingStat"><div class="num">${pendingCount}</div><div class="lab">位待配對 ↓</div></div>
+  `;
+  document.getElementById("pendingStat").addEventListener("click", ()=>{
+    document.getElementById("unassigned").scrollIntoView({behavior:"smooth"});
+  });
+
+  renderGroupChips();
+  renderUnassigned();
+  renderGroupRoster();
+  renderUngroupedAssign();
+  renderPartnerList();
+}
+
+function flashCard(name){
+  requestAnimationFrame(()=>{
+    const el = document.querySelector(`.angel-card[data-name="${CSS.escape(name)}"]`);
+    if(el){
+      el.classList.add("open");
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      el.classList.add("flash");
+      setTimeout(()=>el.classList.remove("flash"), 1600);
+    }
+  });
+}
+
+function renderUnassigned(){
+  const box = document.getElementById("unassignedList");
+  const allNames = Object.keys(byAngel);
+  const pending = allNames.filter(n=> isPending(n)).sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+
+  if(!pending.length){
+    box.innerHTML = `<div style="color:var(--ink-soft);font-size:13px;">目前沒有人待配對，太棒了。</div>`;
+    return;
+  }
+
+  box.innerHTML = pending.map(name=>{
+    const otherOptions = pending.filter(n=>n!==name);
+    return `
+    <div class="unassigned-row">
+      <div class="unassigned-name">${angelLabel(name)}</div>
+      <div class="action-row">
+        <select data-partner-for="${name}">
+          <option value="">選擇小天使搭檔...</option>
+          ${otherOptions.map(o=>`<option value="${o}">${o}</option>`).join("")}
+        </select>
+        <button class="btn" data-formteam="${name}">配對搭檔</button>
+        <span class="divider-or">或</span>
+        <input type="text" class="caseinput" data-case-for="${name}" placeholder="輸入小夥伴姓名" />
+        <button class="btn ghost" style="border:1px solid var(--sage);" data-assign="${name}">指派小夥伴</button>
+      </div>
+    </div>
+  `;
+  }).join("");
+
+  box.querySelectorAll("[data-formteam]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const name = btn.dataset.formteam;
+      const select = box.querySelector(`select[data-partner-for="${CSS.escape(name)}"]`);
+      const other = select.value;
+      if(!other){ select.focus(); return; }
+      teams.push([name, other]);
+      saveTeams();
+      const scrollY = window.scrollY;
+      render();
+      window.scrollTo(0, scrollY);
+    });
+  });
+
+  box.querySelectorAll("[data-assign]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const name = btn.dataset.assign;
+      const input = box.querySelector(`input[data-case-for="${CSS.escape(name)}"]`);
+      const val = input.value.trim();
+      if(!val){ input.focus(); return; }
+      const newCase = {batch:"手動指派", no:"", name:val, angel:name, note:""};
+      cases.push(newCase);
+      manualCases.push(newCase);
+      saveManual();
+      rebuildByAngel();
+      const scrollY = window.scrollY;
+      render();
+      window.scrollTo(0, scrollY);
+    });
+  });
+}
+
+function renderPartnerList(){
+  const box = document.getElementById("partnerList");
+  if(!teams.length){
+    box.innerHTML = `<div style="color:var(--ink-soft);font-size:13px;">目前沒有互相配對的小天使。</div>`;
+    return;
+  }
+
+  box.innerHTML = teams.map((team, ti)=>`
+    <div class="unassigned-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      ${team.map((m,i)=> `${i>0 ? `<span style="color:var(--ink-soft);">↔</span>` : ""}<span style="font-weight:700;color:var(--sage-deep);">${angelLabel(m)}</span>`).join("")}
+      <button class="btn ghost" style="border:1px solid var(--amber);color:#8A5A1E;margin-left:auto;" data-dissolve="${ti}">解除配對</button>
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-dissolve]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const ti = parseInt(btn.dataset.dissolve, 10);
+      armConfirm(btn, "確定解除？再按一次", ()=>{
+        teams.splice(ti, 1);
+        saveTeams();
+        const scrollY = window.scrollY;
+        render();
+        window.scrollTo(0, scrollY);
+      });
+    });
+  });
+}
+function renderGroupRoster(){
+  const box = document.getElementById("groupRoster");
+  box.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      ${Object.keys(groups).map(g=>{
+        const col = GROUP_COLORS[g];
+        const members = groups[g].filter(n=> byAngel[n]!==undefined);
+        return `
+        <div style="background:${col.bg};border-radius:12px;padding:10px 14px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+            <span style="font-weight:700;color:${col.text};font-size:13.5px;">${groupDisplayName(g)}</span>
+            <span style="font-size:12px;color:${col.text};">${members.length} 人</span>
+          </div>
+          <div style="font-size:12.5px;color:${col.text};line-height:1.6;">${members.map(m=>angelLabel(m)).join("、")}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderUngroupedAssign(){
+  const box = document.getElementById("ungroupedAssignList");
+  const groupNames = Object.keys(groups);
+  const ungrouped = Object.keys(byAngel).filter(n=>!groupOf[n]).sort((a,b)=>{
+    return byAngel[b].length - byAngel[a].length || a.localeCompare(b,'zh-Hant');
+  });
+
+  if(!ungrouped.length){
+    box.innerHTML = `<div style="color:var(--ink-soft);font-size:13px;">目前每位小天使都有歸屬的大天使了。</div>`;
+    return;
+  }
+
+  box.innerHTML = ungrouped.map(name=>`
+    <div class="unassigned-row">
+      <div class="unassigned-name">${angelLabel(name)}</div>
+      <div class="action-row">
+        <select data-group-for="${name}">
+          <option value="">選擇大天使組別...</option>
+          ${groupNames.map(g=>`<option value="${g}">${groupDisplayName(g)}</option>`).join("")}
+        </select>
+        <button class="btn" data-assigngroup="${name}">指派組別</button>
+      </div>
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-assigngroup]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const name = btn.dataset.assigngroup;
+      const select = box.querySelector(`select[data-group-for="${CSS.escape(name)}"]`);
+      const g = select.value;
+      if(!g){ select.focus(); return; }
+      groupOf[name] = g;
+      if(!groups[g].includes(name)) groups[g].push(name);
+      manualGroups[name] = g;
+      saveManualGroups();
+      const scrollY = window.scrollY;
+      render();
+      window.scrollTo(0, scrollY);
+    });
+  });
+}
+
+document.getElementById("search").addEventListener("input", e=>{
+  query = e.target.value;
+  render();
+});
+document.getElementById("sortTabs").querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.getElementById("sortTabs").querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    sortMode = tab.dataset.sort;
+    render();
+  });
+});
+document.querySelectorAll(".viewbar .tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".viewbar .tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    viewMode = tab.dataset.view;
+    document.getElementById("sortTabs").style.display = viewMode==="angel" ? "flex" : "none";
+    render();
+  });
+});
+document.querySelectorAll("[data-copy-form]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const input = document.getElementById(btn.dataset.copyForm);
+    const val = input.value.trim();
+    if(!val){ input.focus(); return; }
+    const text = `${btn.dataset.title}\n${val}`;
+    copyWithFeedback(btn, text);
+  });
+});
+function memberLine(name){
+  const list = byAngel[name] || [];
+  const label = name + (akaOf[name] ? `（${akaOf[name]}）` : "");
+  if(list.length){
+    const items = list.map(c=> c.name + (c.note ? `【${c.note}】` : "")).join("、");
+    return `　・${label}：${items}`;
+  }
+  const mates = teammatesOf(name);
+  if(mates.length){
+    return `　・${label}：搭檔 ${mates.join("、")}（尚無小夥伴）`;
+  }
+  if(PENDING_EXEMPT.includes(name)){
+    return `　・${label}：這次先不分配`;
+  }
+  return `　・${label}：待配對`;
+}
+
+function generateAnnouncement(){
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+  const lines = [];
+  lines.push(`小天使配對公告（${dateStr} 更新）`);
+  lines.push("");
+
+  Object.keys(groups).forEach(g=>{
+    lines.push(`${groupDisplayName(g)}`);
+    groups[g].forEach(member=>{
+      lines.push(memberLine(member));
+    });
+    lines.push("");
+  });
+
+  const grouped = new Set(Object.values(groups).flat());
+  const ungrouped = Object.keys(byAngel).filter(n=>!grouped.has(n)).sort((a,b)=>{
+    return byAngel[b].length - byAngel[a].length || a.localeCompare(b,'zh-Hant');
+  });
+  if(ungrouped.length){
+    lines.push("未分組");
+    ungrouped.forEach(n=> lines.push(memberLine(n)));
+  }
+
+  return lines.join("\n");
+}
+
+function getLatest1xxBatches(n){
+  const oneXX = BATCH_ORDER.filter(b=>/^1-\d+$/.test(b));
+  oneXX.sort((a,b)=> parseInt(a.split("-")[1]) - parseInt(b.split("-")[1]));
+  return oneXX.slice(-n);
+}
+
+function generateNewStudentAnnouncement(){
+  const batches = getLatest1xxBatches(3);
+  const lines = ["新生與小天使配對名單", ""];
+  batches.forEach(b=>{
+    const date = BATCH_INFO[b] ? BATCH_INFO[b].date : "";
+    lines.push(`【${b}${date ? "　"+date : ""}】`);
+    const rows = cases.filter(c=>c.batch===b);
+    const merged = [];
+    const idx = {};
+    rows.forEach(c=>{
+      const key = c.no + "|" + c.name;
+      if(idx[key]===undefined){ idx[key]=merged.length; merged.push({name:c.name, angels:[c.angel], notes: c.note?[c.note]:[]}); }
+      else { const m = merged[idx[key]]; m.angels.push(c.angel); if(c.note && !m.notes.includes(c.note)) m.notes.push(c.note); }
+    });
+    if(!merged.length){ lines.push("（目前尚無資料）"); }
+    merged.forEach(m=>{
+      const angelsStr = m.angels.map(a=> a + (akaOf[a]?`（${akaOf[a]}）`:"")).join("、");
+      const noteStr = m.notes.length ? `【${m.notes.join("、")}】` : "";
+      lines.push(`・${m.name} → ${angelsStr}${noteStr}`);
+    });
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+
+function generateBatchBlock(b){
+  const date = BATCH_INFO[b] ? BATCH_INFO[b].date : "";
+  const lines = [`【${b}${date ? "　"+date : ""}】`];
+  const rows = cases.filter(c=>c.batch===b);
+  const merged = [];
+  const idx = {};
+  rows.forEach(c=>{
+    const key = c.no + "|" + c.name;
+    if(idx[key]===undefined){ idx[key]=merged.length; merged.push({no:c.no, group:c.group||"", referrer:c.referrer||"", careWorker:c.careWorker||"", name:c.name, angels:[c.angel], notes: c.note?[c.note]:[]}); }
+    else { const m = merged[idx[key]]; m.angels.push(c.angel); if(c.note && !m.notes.includes(c.note)) m.notes.push(c.note); }
+  });
+  if(!merged.length){ lines.push("（目前尚無資料）"); }
+  merged.forEach(m=>{
+    const angelsStr = m.angels.map(a=> a + (akaOf[a]?`（${akaOf[a]}）`:"")).join("、");
+    const noteStr = m.notes.length ? `【${m.notes.join("、")}】` : "";
+    const prefixParts = [];
+    if(m.group) prefixParts.push(`組別${m.group}`);
+    if(m.no) prefixParts.push(`編號${m.no}`);
+    const prefix = prefixParts.length ? `（${prefixParts.join("、")}）` : "";
+    const referrerStr = m.referrer ? `　介紹人：${m.referrer}` : "";
+    const careWorkerStr = m.careWorker ? `　關懷員：${m.careWorker}` : "";
+    lines.push(`・${m.name}${prefix} → ${angelsStr}${noteStr}${referrerStr}${careWorkerStr}`);
+  });
+  return lines;
+}
+
+function generateAllBatchesAnnouncement(){
+  const lines = ["小天使與新生配對名單（全部批次）", ""];
+  BATCH_ORDER.forEach(b=>{
+    lines.push(...generateBatchBlock(b));
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+
+document.getElementById("copyAllBatchBtn").addEventListener("click", ()=>{
+  const text = generateAllBatchesAnnouncement();
+  const btn = document.getElementById("copyAllBatchBtn");
+  copyWithFeedback(btn, text);
+});
+
+document.getElementById("copyNewStudentBtn").addEventListener("click", ()=>{
+  const text = generateNewStudentAnnouncement();
+  const btn = document.getElementById("copyNewStudentBtn");
+  copyWithFeedback(btn, text);
+});
+
+document.getElementById("copyAnnounceBtn").addEventListener("click", ()=>{
+  const text = generateAnnouncement();
+  const btn = document.getElementById("copyAnnounceBtn");
+  copyWithFeedback(btn, text, "已複製公告");
+});
+
+function copyList(btn, names, title){
+  const lines = [`${title}（共 ${names.length} 位）`, ""];
+  names.forEach((n,i)=> lines.push(`${i+1}. ${n}${akaOf[n] ? `（${akaOf[n]}）` : ""}`));
+  const text = lines.join("\n");
+  copyWithFeedback(btn, text);
+}
+
+document.getElementById("copyUnassignedBtn").addEventListener("click", ()=>{
+  const allNames = Object.keys(byAngel);
+  const pending = allNames.filter(n=> isPending(n)).sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+  copyList(document.getElementById("copyUnassignedBtn"), pending, "待配對／待分配小夥伴名單");
+});
+
+document.getElementById("copyUngroupedBtn").addEventListener("click", ()=>{
+  const ungrouped = Object.keys(byAngel).filter(n=>!groupOf[n]).sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+  copyList(document.getElementById("copyUngroupedBtn"), ungrouped, "未分配大天使名單");
+});
+
+document.getElementById("copyPartnerBtn").addEventListener("click", ()=>{
+  const btn = document.getElementById("copyPartnerBtn");
+  const lines = [`已配對搭檔的小天使（共 ${teams.length} 組）`, ""];
+  teams.forEach((team,i)=> lines.push(`${i+1}. ${team.map(n=> n + (akaOf[n]?`（${akaOf[n]}）`:"")).join(" ↔ ")}`));
+  const text = lines.join("\n");
+  copyWithFeedback(btn, text);
+});
+
+document.getElementById("resetLink").addEventListener("click", ()=>{
+  const btn = document.getElementById("resetLink");
+  armConfirm(btn, "確定清除？再按一次", ()=>{
+    manualCases.forEach(mc=>{
+      const idx = cases.indexOf(mc);
+      if(idx>-1) cases.splice(idx,1);
+    });
+    manualCases = [];
+    localStorage.removeItem("angelManualCases");
+    rebuildByAngel();
+    render();
+  });
+});
+
+document.getElementById("resetTeamsLink").addEventListener("click", ()=>{
+  const btn = document.getElementById("resetTeamsLink");
+  armConfirm(btn, "確定清除？再按一次", ()=>{
+    teams = DEFAULT_TEAMS.map(t=>t.slice());
+    saveTeams();
+    render();
+  });
+});
+
+document.getElementById("resetGroupLink").addEventListener("click", ()=>{
+  const btn = document.getElementById("resetGroupLink");
+  armConfirm(btn, "確定清除？再按一次", ()=>{
+    Object.keys(manualGroups).forEach(name=>{
+      const g = manualGroups[name];
+      delete groupOf[name];
+      const idx = groups[g].indexOf(name);
+      if(idx>-1) groups[g].splice(idx,1);
+    });
+    manualGroups = {};
+    localStorage.removeItem("angelManualGroups");
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
