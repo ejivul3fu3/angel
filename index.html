@@ -284,6 +284,79 @@
     margin-top:18px;display:inline-block;
   }
 
+  .collapsible-head{
+    display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;
+  }
+
+  .leader-panel{
+    background:linear-gradient(135deg, #FBEEC7 0%, #E1F0EA 50%, #DCEAF5 100%);
+    border:2px solid #F0DD9E;
+    border-radius:18px;
+    padding:20px 22px;
+    margin-bottom:22px;
+    box-shadow:0 4px 18px rgba(201,138,58,0.14);
+  }
+  .leader-panel-title{
+    font-size:19px;font-weight:800;color:var(--sage-deep);
+    margin-bottom:4px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .leader-emoji{
+    display:inline-block;
+    font-size:22px;
+    animation:leaderFloat 2.2s ease-in-out infinite;
+  }
+  @keyframes leaderFloat{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-5px) rotate(-6deg); }
+  }
+  .leader-panel-hint{
+    font-size:13px;color:#8A6A0A;font-weight:600;
+    margin-bottom:14px;
+  }
+  .leader-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .leader-chip{
+    padding:8px 16px;border-radius:999px;
+    border:1px solid transparent;
+    font-size:13.5px;font-weight:600;
+    cursor:pointer;
+  }
+  .leader-detail{
+    border-top:1px solid rgba(0,0,0,0.08);
+    padding-top:16px;
+  }
+  .leader-member-card{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 16px;
+    margin-bottom:8px;
+  }
+  .leader-member-name{
+    font-weight:700;color:var(--sage-deep);font-size:14px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .leader-member-detail{
+    font-size:13px;color:var(--ink);line-height:1.6;
+  }
+  .leader-todo-section{
+    margin-top:20px;padding-top:18px;border-top:1px dashed var(--line);
+  }
+  .leader-todo-title{
+    font-size:14.5px;font-weight:700;color:var(--sage-deep);
+    margin:0 0 8px;
+  }
+  .leader-todo-box{
+    background:var(--sage-pale);border-radius:12px;
+    padding:14px 16px;margin-bottom:12px;
+    font-size:13.5px;color:var(--ink);line-height:1.9;
+  }
+  .leader-todo-box.amber{ background:var(--amber-pale); }
+  .leader-todo-box ol, .leader-todo-box ul{ margin:6px 0 0; padding-left:20px; }
+  .leader-todo-box p{ margin:0 0 6px; }
+
   .track-summary{
     display:flex;gap:12px;flex-wrap:wrap;
     margin-bottom:18px;
@@ -313,6 +386,21 @@
   .track-table input[type="checkbox"]{
     width:18px;height:18px;cursor:pointer;accent-color:var(--sage);
   }
+  .track-toggle-btn{
+    border:none;border-radius:999px;
+    padding:6px 12px;font-size:12px;font-weight:600;
+    cursor:pointer;white-space:nowrap;
+  }
+  .event-chip{
+    border:none;border-radius:999px;
+    padding:6px 12px;font-size:12.5px;font-weight:600;
+    cursor:pointer;white-space:nowrap;
+  }
+  .week-tab-chip{
+    border:none;border-radius:10px;
+    padding:6px 10px;font-size:12px;font-weight:600;
+    text-align:center;cursor:pointer;line-height:1.4;
+  }
   .track-section{
     background:var(--card);
     border:1px solid var(--line);
@@ -324,16 +412,35 @@
 <body>
 <div class="wrap">
   <header>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-      <div>
-        <h1>小天使配對總覽</h1>
-        <div class="sub">依小天使、依批次整理個案，也可以在「追蹤進度」勾選同學會／課後課／圓夢計畫</div>
-      </div>
-      <button class="btn" id="copyAnnounceBtn" style="white-space:nowrap;">複製配對公告</button>
-      <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyNewStudentBtn">複製新生配對名單（近三批）</button>
-      <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyAllBatchBtn">複製全部批次配對名單</button>
-    </div>
+    <h1>小天使配對總覽</h1>
+    <div class="sub">大天使請先看下面的專區；批次資料、名單管理都收在「管理工具」裡</div>
   </header>
+
+  <div class="leader-panel" id="leaderPanel">
+    <div id="leaderPanelHead" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <div>
+        <div class="leader-panel-title"><span class="leader-emoji">👼</span> 大天使請點我 <span class="leader-emoji" style="animation-delay:1.1s;">😇</span></div>
+        <div class="leader-panel-hint">點選組別可展開查看帶領的小天使</div>
+      </div>
+      <span class="chev" id="leaderPanelChev" style="transform:rotate(90deg);">▶</span>
+    </div>
+    <div id="leaderPanelBody" style="display:block;">
+      <div class="leader-chip-row" id="leaderChipRow" style="margin-top:14px;"></div>
+      <div id="leaderDetail"></div>
+    </div>
+  </div>
+
+  <div id="adminToggleRow" style="display:flex;justify-content:center;margin:4px 0 22px;">
+    <button class="btn ghost" style="border:1px solid var(--sage);" id="adminToggleBtn">▾ 顯示管理工具（批次資料／名單管理／公告複製）</button>
+  </div>
+
+  <div id="adminTools" style="display:none;">
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+    <button class="btn" id="copyAnnounceBtn" style="white-space:nowrap;">複製配對公告</button>
+    <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyNewStudentBtn">複製新生配對名單（近三批）</button>
+    <button class="btn ghost" style="border:1px solid var(--sage);white-space:nowrap;" id="copyAllBatchBtn">複製全部批次配對名單</button>
+  </div>
 
   <div class="stats" id="stats"></div>
 
@@ -363,20 +470,9 @@
     </div>
   </div>
 
-  <div class="group-panel">
-    <div class="group-panel-title">大天使<span class="hint">點選大天使，下方連動篩選其成員</span></div>
-    <div class="chip-row" id="groupChips"></div>
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);">
-      <span><span class="group-tag" style="background:var(--sage-pale);color:var(--sage-deep);">大天使：一、特特</span> = 所屬大天使組別</span>
-      <span><span class="flag-pale">待配對</span> = 目前沒有小夥伴也沒有搭檔</span>
-      <span>展開卡片可看小夥伴明細，搭檔小天使會列在同一張表格裡並註明「身份：小天使」</span>
-    </div>
-  </div>
-
   <div class="viewbar">
     <div class="tab active" data-view="angel">依小天使</div>
     <div class="tab" data-view="batch">依批次</div>
-    <div class="tab" data-view="track">追蹤進度</div>
   </div>
 
   <div class="toolbar">
@@ -391,38 +487,79 @@
   <div class="empty" id="empty" style="display:none;">找不到符合的資料</div>
 
   <div class="unassigned-section" id="unassigned">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+    <div class="collapsible-head" data-target="unassignedBody">
       <div class="unassigned-title">待配對 / 待分配小夥伴</div>
-      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUnassignedBtn">複製名單</button>
+      <span class="chev" data-chev-for="unassignedBody">▶</span>
     </div>
-    <div class="unassigned-sub">這些小天使目前還沒有搭檔、也還沒配到小夥伴。直接在下面幫他們配對或輸入小夥伴姓名，送出後就會自動歸類到上面對應的位置。</div>
-    <div id="unassignedList"></div>
-    <span class="reset-link" id="resetLink">清除我手動指派的小夥伴紀錄</span>
+    <div id="unassignedBody" style="display:none;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUnassignedBtn">複製名單</button>
+      </div>
+      <div class="unassigned-sub">這些小天使目前還沒有搭檔、也還沒配到小夥伴。直接在下面幫他們配對或輸入小夥伴姓名，送出後就會自動歸類到上面對應的位置。</div>
+      <div id="unassignedList"></div>
+      <span class="reset-link" id="resetLink">清除我手動指派的小夥伴紀錄</span>
+    </div>
   </div>
 
   <div class="unassigned-section" id="ungroupedSection">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+    <div class="collapsible-head" data-target="ungroupedBody">
       <div class="unassigned-title">未分配大天使</div>
-      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUngroupedBtn">複製名單</button>
+      <span class="chev" data-chev-for="ungroupedBody">▶</span>
     </div>
-    <div class="unassigned-sub">這些小天使目前還沒有歸屬的大天使組別。選好組別按「指派」，就會直接歸類到上面對應的大天使底下。</div>
-    <div id="groupRoster" style="margin-bottom:18px;"></div>
-    <div id="ungroupedAssignList"></div>
-    <span class="reset-link" id="resetGroupLink">清除我手動指派的組別紀錄</span>
+    <div id="ungroupedBody" style="display:none;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn ghost" style="border:1px solid var(--sage);" id="copyUngroupedBtn">複製名單</button>
+      </div>
+      <div class="unassigned-sub">這些小天使目前還沒有歸屬的大天使組別。選好組別按「指派」，就會直接歸類到上面對應的大天使底下。</div>
+      <div id="groupRoster" style="margin-bottom:18px;"></div>
+      <div id="ungroupedAssignList"></div>
+      <span class="reset-link" id="resetGroupLink">清除我手動指派的組別紀錄</span>
+    </div>
   </div>
 
   <div class="unassigned-section" id="partnerSection">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;">
+    <div class="collapsible-head" data-target="partnerBody">
       <div class="unassigned-title">已配對搭檔的小天使</div>
-      <button class="btn ghost" style="border:1px solid var(--sage);" id="copyPartnerBtn">複製名單</button>
+      <span class="chev" data-chev-for="partnerBody">▶</span>
     </div>
-    <div class="unassigned-sub">這裡是小天使跟小天使互相配對的搭檔關係（不是小夥伴配對），固定是 2 人一組。</div>
-    <div id="partnerList"></div>
-    <span class="reset-link" id="resetTeamsLink">清除所有搭檔小組，回到預設值</span>
+    <div id="partnerBody" style="display:none;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn ghost" style="border:1px solid var(--sage);" id="copyPartnerBtn">複製名單</button>
+      </div>
+      <div class="unassigned-sub">這裡是小天使跟小天使互相配對的搭檔關係（不是小夥伴配對），固定是 2 人一組。每週通話請到「追蹤進度」的每週通話追蹤區塊打卡。</div>
+      <div id="partnerList"></div>
+      <span class="reset-link" id="resetTeamsLink">清除所有搭檔小組，回到預設值</span>
+    </div>
+  </div>
+
   </div>
 </div>
 
+<!-- 每週通話追蹤要跟大家同步時，會用到 Firebase（免費雲端資料庫）。
+     還沒設定好 Firebase 也沒關係，網頁會自動改用瀏覽器本機儲存，不會壞掉。 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
+// ====== Firebase 設定區（照教學把這裡換成你自己的專案設定） ======
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  databaseURL: "PASTE_YOUR_DATABASE_URL",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+};
+let fbEnabled = false;
+let fbDb = null;
+try{
+  if(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("PASTE_") !== 0 && window.firebase){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    fbEnabled = true;
+  }
+}catch(e){
+  console.warn("Firebase 尚未設定好，改用瀏覽器本機儲存。", e);
+  fbEnabled = false;
+}
+// ================================================================
 // 大天使分組（供標示組別參考）
 const groupOf = {};
 const groups = {
@@ -493,18 +630,17 @@ const cases = [
   {batch:"1-87", no:"32212", group:"15-4", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"王秋燕", angel:"蜜卡", note:""},
   {batch:"1-87", no:"32215", group:"20-2", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"杜淑卿", angel:"Yvoone（依樺）", note:""},
   {batch:"1-87", no:"32727", group:"15-2", referrer:"8501_石至平", careWorker:"8501_石至平", name:"陳冠維", angel:"至平", note:"OR Linda"},
-  {batch:"1-87", no:"", name:"鍾昌涓", angel:"特特", note:"延期"},
   {batch:"1-88", no:"33062", group:"15-3", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林淑真", angel:"韋萱", note:""},
   {batch:"1-88", no:"33404", group:"15-4", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林素惠", angel:"韋萱", note:""},
   {batch:"1-88", no:"33506", group:"15-1", referrer:"22964_黃蘋", careWorker:"2331_謝涵汝", name:"周金柱", angel:"銘余", note:""},
   {batch:"1-88", no:"33780", group:"15-2", referrer:"7235_王岑芯（瓦特）", careWorker:"7235_王岑芯", name:"鄭家妤", angel:"特特", note:""},
   {batch:"1-89", no:"32633", referrer:"4593_陳書麟", careWorker:"3630_楊宗益", name:"張薏宣", angel:"vigor", note:""},
-  {batch:"1-89", no:"32729", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林樹詮", angel:"哲豪", note:"岑芯的朋友"},
   {batch:"1-89", no:"32736", referrer:"10637_王薏涵", careWorker:"7235_王岑芯", name:"廖絲環", angel:"薏涵", note:""},
   {batch:"1-89", no:"33011", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林純安", angel:"Yoyo", note:""},
   {batch:"1-89", no:"33107", referrer:"4709_張國順", careWorker:"2331_謝涵汝", name:"林子傑", angel:"國順", note:""},
   {batch:"1-89", no:"33346", referrer:"5582_邱劭瑜", careWorker:"2331_謝涵汝", name:"黃晉慶", angel:"至平", note:""},
   {batch:"1-89", no:"33641", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"李鈴靜", angel:"小珠", note:""},
+  {batch:"1-89", no:"34077", referrer:"", careWorker:"", name:"楊雅榆", angel:"國順", note:""},
   {batch:"3-21", no:"22566", referrer:"12895_李佳怡", careWorker:"10436_周書儀", name:"黃湘庭", angel:"書書", note:""},
   {batch:"3-21", no:"14595", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林千翔", angel:"哲豪", note:""},
   {batch:"3-21", no:"25616", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"唐玉潔", angel:"翠貞", note:""},
@@ -538,6 +674,9 @@ const DEFAULT_TEAMS = [
   ["冠臻","王岑芯"],
   ["依涵（菲菲）","小束"],
   ["佳霖Zora","古雅婷"],
+  ["77","書書"],
+  ["阿棠","君君"],
+  ["哲豪","盧捷偉／泰安產物"],
 ];
 
 // ---- 讀取手動輸入的紀錄（存在瀏覽器本機） ----
@@ -558,6 +697,66 @@ function saveManual(){
 function saveTeams(){
   localStorage.setItem("angelTeams", JSON.stringify(teams));
 }
+
+// 每週通話追蹤：從 8/3 開始，每週一個區間，依「小天使」為單位打卡
+function formatMD(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+const WEEK_START = new Date(2026,7,3); // 2026/8/3
+const WEEK_COUNT = 12;
+const WEEK_LIST = [];
+for(let i=0;i<WEEK_COUNT;i++){
+  const start = new Date(WEEK_START.getTime()); start.setDate(start.getDate()+i*7);
+  const end = new Date(start.getTime()); end.setDate(end.getDate()+6);
+  WEEK_LIST.push({key:`w${i+1}`, label:`第 ${i+1} 週`, date:`${formatMD(start)}－${formatMD(end)}`});
+}
+let weeklyCallData = {};
+try{
+  weeklyCallData = JSON.parse(localStorage.getItem("angelWeeklyCallTrack") || "{}");
+}catch(e){ weeklyCallData = {}; }
+
+function saveWeeklyCallData(){
+  localStorage.setItem("angelWeeklyCallTrack", JSON.stringify(weeklyCallData));
+}
+function getWeeklyCall(weekKey, name){
+  return !!(weeklyCallData[weekKey] && weeklyCallData[weekKey][name]);
+}
+// 統一的寫入入口：有接 Firebase 就寫雲端（大家會同步看到），沒有就寫本機
+function setWeeklyCall(weekKey, name, val){
+  if(fbEnabled){
+    const safeName = encodeURIComponent(name);
+    fbDb.ref(`weeklyCallTrack/${weekKey}/${safeName}`).set(val);
+    // 不用手動更新 weeklyCallData，Firebase 的即時監聽會自動更新畫面
+  } else {
+    if(!weeklyCallData[weekKey]) weeklyCallData[weekKey] = {};
+    weeklyCallData[weekKey][name] = val;
+    saveWeeklyCallData();
+  }
+}
+// 如果有接 Firebase，訂閱即時更新：任何人改了，這裡自動收到最新資料並重新整理畫面
+if(fbEnabled){
+  fbDb.ref("weeklyCallTrack").on("value", snapshot=>{
+    const raw = snapshot.val() || {};
+    const decoded = {};
+    Object.keys(raw).forEach(weekKey=>{
+      decoded[weekKey] = {};
+      Object.keys(raw[weekKey] || {}).forEach(safeName=>{
+        decoded[weekKey][decodeURIComponent(safeName)] = raw[weekKey][safeName];
+      });
+    });
+    weeklyCallData = decoded;
+    // 畫面若已經初次渲染過，即時刷新目前看到的頁面
+    if(typeof render === "function" && document.getElementById("stats").innerHTML){
+      renderLeaderDetail();
+    }
+  });
+}
+function currentWeekKey(){
+  const today = new Date();
+  const diffDays = Math.floor((today - WEEK_START) / 86400000);
+  const idx = Math.min(Math.max(Math.floor(diffDays/7), 0), WEEK_COUNT-1);
+  return WEEK_LIST[idx].key;
+}
+let selectedWeek = currentWeekKey();
+
 function findTeam(name){
   return teams.find(t=>t.includes(name)) || null;
 }
@@ -573,11 +772,58 @@ function isPending(name){
 }
 
 // ---- 追蹤紀錄：同學會 / 課後課 / 陪伴小夥伴圓夢計畫 ----
+// 每個活動分開追蹤「小主人（新生）有沒有到」跟「小天使有沒有到／請人協助」
 const TRACK_FIELDS = [
   {key:"reunion", label:"同學會"},
   {key:"afterclass", label:"課後課"},
   {key:"dream", label:"圓夢計畫"},
 ];
+
+const BUDDY_STATE_ORDER = ["", "yes", "no"];
+const ANGEL_STATE_ORDER = ["", "self", "helper", "no"];
+const CALL_STATE_ORDER = ["", "yes", "no"];
+
+function buddyStateMeta(state){
+  switch(state){
+    case "yes": return {label:"✓ 有到", bg:"#DFF3E7", color:"#1F6B44"};
+    case "no": return {label:"✗ 沒到", bg:"#FBE1E6", color:"#99334A"};
+    default: return {label:"－", bg:"#EDEBE3", color:"#9A9284"};
+  }
+}
+function angelStateMeta(state){
+  switch(state){
+    case "self": return {label:"✓ 親自", bg:"#DFF3E7", color:"#1F6B44"};
+    case "helper": return {label:"✓ 協助", bg:"#DCEAF5", color:"#1F5C82"};
+    case "no": return {label:"✗ 沒到", bg:"#FBE1E6", color:"#99334A"};
+    default: return {label:"－", bg:"#EDEBE3", color:"#9A9284"};
+  }
+}
+function callStateMeta(state){
+  switch(state){
+    case "yes": return {label:"✓", bg:"#DFF3E7", color:"#1F6B44"};
+    case "no": return {label:"✗", bg:"#FBE1E6", color:"#99334A"};
+    default: return {label:"－", bg:"#EDEBE3", color:"#9A9284"};
+  }
+}
+function trackIsDone(role, state){
+  if(role==="buddy") return state==="yes";
+  if(role==="angel") return state==="self" || state==="helper";
+  if(role==="call") return state==="yes";
+  return false;
+}
+function trackNextStateForRole(role, state){
+  const order = role==="buddy" ? BUDDY_STATE_ORDER : (role==="angel" ? ANGEL_STATE_ORDER : CALL_STATE_ORDER);
+  const idx = order.indexOf(state||"");
+  return order[(idx+1) % order.length];
+}
+function trackToggleHtml(c, fieldKey, role){
+  const key = caseKey(c);
+  const storeField = `${fieldKey}_${role}`;
+  const state = getTrack(c, storeField) || "";
+  const meta = role==="buddy" ? buddyStateMeta(state) : (role==="angel" ? angelStateMeta(state) : callStateMeta(state));
+  return `<button type="button" class="track-toggle-btn" data-track-key="${key}" data-track-field="${storeField}" data-track-role="${role}" style="background:${meta.bg};color:${meta.color};">${meta.label}</button>`;
+}
+
 let trackData = {};
 try{
   trackData = JSON.parse(localStorage.getItem("angelTrackData") || "{}");
@@ -588,13 +834,29 @@ function saveTrack(){
 }
 function getTrack(c, field){
   const k = caseKey(c);
-  return !!(trackData[k] && trackData[k][field]);
+  return (trackData[k] && trackData[k][field]) || "";
 }
 function setTrack(c, field, val){
   const k = caseKey(c);
   if(!trackData[k]) trackData[k] = {};
   trackData[k][field] = val;
   saveTrack();
+}
+
+// 9/17 小天使復盤聚會：是否已空下時間（依小天使本人，不是依小夥伴）
+let eventTrackData = {};
+try{
+  eventTrackData = JSON.parse(localStorage.getItem("angelEventTrack") || "{}");
+}catch(e){ eventTrackData = {}; }
+function saveEventTrack(){
+  localStorage.setItem("angelEventTrack", JSON.stringify(eventTrackData));
+}
+function getEventTrack(name){
+  return !!eventTrackData[name];
+}
+function setEventTrack(name, val){
+  eventTrackData[name] = val;
+  saveEventTrack();
 }
 
 // 依小天使分組
@@ -719,6 +981,14 @@ function armConfirm(btn, confirmLabel, onConfirm){
 function angelLabel(name){
   return name + (akaOf[name] ? `<span style="font-weight:400;color:var(--ink-soft);font-size:12.5px;">（${akaOf[name]}）</span>` : "");
 }
+function angelLabelPlain(name){
+  return name + (akaOf[name] ? `（${akaOf[name]}）` : "");
+}
+function tierLabel(batch){
+  if(/^1-/.test(batch)) return "一階";
+  if(/^3-/.test(batch)) return "三階";
+  return "";
+}
 
 function renderAngelView(names){
   const listEl = document.getElementById("list");
@@ -752,9 +1022,12 @@ function renderAngelView(names){
 
     const rows = visibleCases.map(c=>`
       <tr>
+        <td class="no">${c.group||"—"}</td>
         <td class="batch">${c.batch}</td>
         <td class="no">${c.no||"—"}</td>
         <td class="name">${c.name}</td>
+        <td class="note">${c.referrer||"—"}</td>
+        <td class="note">${c.careWorker||"—"}</td>
         <td class="note">${c.note||""}</td>
       </tr>
     `).join("");
@@ -762,9 +1035,12 @@ function renderAngelView(names){
     const teammates = teammatesOf(name);
     const partnerRow = teammates.map(t=>`
       <tr>
+        <td class="no">—</td>
         <td class="batch">—</td>
         <td class="no">—</td>
         <td class="name">${angelLabel(t)}</td>
+        <td class="note">—</td>
+        <td class="note">—</td>
         <td class="note">身份：小天使（搭檔）</td>
       </tr>
     `).join("");
@@ -788,7 +1064,7 @@ function renderAngelView(names){
       <div class="case-list">
         ${hasAnyRow ? `
         <table>
-          <thead><tr><th>批次</th><th>編號</th><th>小夥伴姓名</th><th>備註</th></tr></thead>
+          <thead><tr><th>組別</th><th>批次</th><th>編號</th><th>小夥伴姓名</th><th>介紹人</th><th>關懷員</th><th>備註</th></tr></thead>
           <tbody>${rows}${partnerRow}</tbody>
         </table>` : `<div style="color:var(--ink-soft);font-size:13px;padding:4px 8px;">${isExempt ? "這次先不分配新生或搭檔" : "目前尚無配對"}</div>`}
       </div>
@@ -892,72 +1168,193 @@ function renderTrackView(names){
   rows = rows.slice().sort((a,b)=> a.batch.localeCompare(b.batch) || a.name.localeCompare(b.name,'zh-Hant'));
 
   const totals = {};
-  TRACK_FIELDS.forEach(f=> totals[f.key]=0);
-  rows.forEach(c=> TRACK_FIELDS.forEach(f=>{ if(getTrack(c,f.key)) totals[f.key]++; }));
+  TRACK_FIELDS.forEach(f=>{ totals[f.key] = {buddy:0, angel:0}; });
+  rows.forEach(c=>{
+    TRACK_FIELDS.forEach(f=>{
+      if(trackIsDone("buddy", getTrack(c, `${f.key}_buddy`))) totals[f.key].buddy++;
+      if(trackIsDone("angel", getTrack(c, `${f.key}_angel`))) totals[f.key].angel++;
+    });
+  });
+
+  const eventCheckedCount = names.filter(n=> getEventTrack(n)).length;
+  const eventPct = names.length ? Math.round(eventCheckedCount/names.length*100) : 0;
+  const weekDoneCount = names.filter(n=> getWeeklyCall(selectedWeek, n)).length;
+  const weekPct = names.length ? Math.round(weekDoneCount/names.length*100) : 0;
+  const weekInfo = WEEK_LIST.find(w=>w.key===selectedWeek);
 
   const summaryHtml = `
     <div class="track-summary">
       ${TRACK_FIELDS.map(f=>{
-        const pct = rows.length ? Math.round(totals[f.key]/rows.length*100) : 0;
+        const bp = rows.length ? Math.round(totals[f.key].buddy/rows.length*100) : 0;
+        const ap = rows.length ? Math.round(totals[f.key].angel/rows.length*100) : 0;
         return `
         <div class="track-card">
           <div class="tc-top">
-            <span class="tc-label">${f.label}</span>
-            <span class="tc-num">${totals[f.key]} / ${rows.length}</span>
+            <span class="tc-label">${f.label}・小主人</span>
+            <span class="tc-num">${totals[f.key].buddy} / ${rows.length}</span>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${bp}%;"></div></div>
+        </div>
+        <div class="track-card">
+          <div class="tc-top">
+            <span class="tc-label">${f.label}・小天使</span>
+            <span class="tc-num">${totals[f.key].angel} / ${rows.length}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${ap}%;background:#4A8FB5;"></div></div>
         </div>`;
       }).join("")}
+      <div class="track-card">
+        <div class="tc-top">
+          <span class="tc-label">${weekInfo.label} 通話</span>
+          <span class="tc-num">${weekDoneCount} / ${names.length}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${weekPct}%;background:#8A6ABE;"></div></div>
+      </div>
+      <div class="track-card">
+        <div class="tc-top">
+          <span class="tc-label">9/17 已空下時間</span>
+          <span class="tc-num">${eventCheckedCount} / ${names.length}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${eventPct}%;background:var(--amber);"></div></div>
+      </div>
     </div>
   `;
 
   const bodyRows = rows.map(c=>{
-    const key = caseKey(c);
     return `
       <tr>
         <td class="batch">${c.batch}</td>
         <td class="name">${c.name}</td>
         <td>${angelLabel(c.angel)}</td>
-        ${TRACK_FIELDS.map(f=>`<td><input type="checkbox" data-key="${key}" data-field="${f.key}" ${getTrack(c,f.key)?"checked":""}></td>`).join("")}
+        ${TRACK_FIELDS.map(f=>`<td>${trackToggleHtml(c, f.key, "buddy")}</td><td>${trackToggleHtml(c, f.key, "angel")}</td>`).join("")}
       </tr>
     `;
   }).join("");
 
   listEl.innerHTML = `
     ${summaryHtml}
+
+    <div class="track-section" style="margin-bottom:14px;">
+      <div class="collapsible-head" data-target="weeklyCallBody">
+        <div>
+          <div style="font-weight:700;color:var(--sage-deep);font-size:14.5px;">每週通話追蹤（從 8/3 第一週開始）</div>
+          <div style="font-size:12px;color:var(--ink-soft);">${weekInfo.label}（${weekInfo.date}）已通話 ${weekDoneCount}/${names.length}</div>
+        </div>
+        <span class="chev" data-chev-for="weeklyCallBody">▶</span>
+      </div>
+      <div id="weeklyCallBody" style="display:none;margin-top:12px;">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          ${WEEK_LIST.map(w=>`<button type="button" class="week-tab-chip" data-week="${w.key}" style="${w.key===selectedWeek ? 'background:var(--sage);color:#fff;' : 'background:var(--sage-pale);color:var(--sage-deep);'}">${w.label}<br><span style="font-size:10.5px;font-weight:400;">${w.date}</span></button>`).join("")}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${names.slice().sort((a,b)=>a.localeCompare(b,'zh-Hant')).map(n=>{
+            const on = getWeeklyCall(selectedWeek, n);
+            return `<button type="button" class="event-chip" data-week-call-for="${n}" style="background:${on?'#DFF3E7':'#EDEBE3'};color:${on?'#1F6B44':'#6B6355'};">${on?"✓ ":""}${n}</button>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="track-section" style="margin-bottom:14px;">
+      <div class="collapsible-head" data-target="eventTrackBody">
+        <div>
+          <div style="font-weight:700;color:var(--sage-deep);font-size:14.5px;">9/17（四）小天使復盤聚會　晚上 19:00－21:30</div>
+          <div style="font-size:12px;color:var(--ink-soft);">是否已空下時間（${eventCheckedCount}/${names.length}）</div>
+        </div>
+        <span class="chev" data-chev-for="eventTrackBody">▶</span>
+      </div>
+      <div id="eventTrackBody" style="display:none;margin-top:12px;">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${names.slice().sort((a,b)=>a.localeCompare(b,'zh-Hant')).map(n=>{
+            const on = getEventTrack(n);
+            return `<button type="button" class="event-chip" data-event-for="${n}" style="background:${on?'#DFF3E7':'#EDEBE3'};color:${on?'#1F6B44':'#6B6355'};">${on?"✓ ":""}${n}</button>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+
     <div class="track-section">
+      <div style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;">
+        點狀態按鈕可循環切換：<strong>小主人</strong> － → ✓有到 → ✗沒到　　<strong>小天使</strong> － → ✓親自 → ✓協助 → ✗沒到
+      </div>
       ${rows.length ? `
       <table class="track-table">
-        <thead><tr><th>批次</th><th>小夥伴姓名</th><th>小天使</th>${TRACK_FIELDS.map(f=>`<th>${f.label}</th>`).join("")}</tr></thead>
+        <thead>
+          <tr>
+            <th rowspan="2">批次</th><th rowspan="2">小夥伴姓名</th><th rowspan="2">小天使</th>
+            ${TRACK_FIELDS.map(f=>`<th colspan="2">${f.label}</th>`).join("")}
+          </tr>
+          <tr>
+            ${TRACK_FIELDS.map(()=>`<th>小主人</th><th>小天使</th>`).join("")}
+          </tr>
+        </thead>
         <tbody>${bodyRows}</tbody>
       </table>` : `<div class="empty">找不到符合的資料</div>`}
     </div>
   `;
 
-  listEl.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-    cb.addEventListener("change", ()=>{
-      const c = rows.find(r=> caseKey(r)===cb.dataset.key);
-      setTrack(c, cb.dataset.field, cb.checked);
+  listEl.querySelectorAll('.week-tab-chip').forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      selectedWeek = chip.dataset.week;
+      renderTrackView(names);
+    });
+  });
+
+  listEl.querySelectorAll('[data-week-call-for]').forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      const n = chip.dataset.weekCallFor;
+      setWeeklyCall(selectedWeek, n, !getWeeklyCall(selectedWeek, n));
+      renderTrackView(names);
+    });
+  });
+
+  listEl.querySelectorAll('.event-chip[data-event-for]').forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      const n = chip.dataset.eventFor;
+      setEventTrack(n, !getEventTrack(n));
+      renderTrackView(names);
+    });
+  });
+
+  listEl.querySelectorAll('.collapsible-head').forEach(head=>{
+    head.addEventListener("click", ()=>{
+      const targetId = head.dataset.target;
+      const body = document.getElementById(targetId);
+      const chev = head.querySelector(`[data-chev-for="${targetId}"]`);
+      const isOpen = body.style.display !== "none";
+      body.style.display = isOpen ? "none" : "block";
+      if(chev) chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+    });
+  });
+
+  listEl.querySelectorAll('.track-toggle-btn').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const c = rows.find(r=> caseKey(r)===btn.dataset.trackKey);
+      if(!c) return;
+      const cur = getTrack(c, btn.dataset.trackField);
+      setTrack(c, btn.dataset.trackField, trackNextStateForRole(btn.dataset.trackRole, cur));
       renderTrackView(names);
     });
   });
 }
 
-function render(){
+function getCurrentNames(){
   let names = Object.keys(byAngel);
-
   if(selectedGroup==="UNGROUPED"){
     names = names.filter(n=>!groupOf[n]);
   } else if(selectedGroup!=="ALL"){
     names = names.filter(n=>groupOf[n]===selectedGroup);
   }
+  return names;
+}
 
-  if(viewMode==="angel"){
-    renderAngelView(names);
-  } else if(viewMode==="batch"){
+function render(){
+  let names = getCurrentNames();
+
+  if(viewMode==="batch"){
     renderBatchView(names);
   } else {
-    renderTrackView(names);
+    renderAngelView(names);
   }
 
   const totalCasesInView = names.reduce((sum,n)=>sum+byAngel[n].length,0);
@@ -973,7 +1370,6 @@ function render(){
     document.getElementById("unassigned").scrollIntoView({behavior:"smooth"});
   });
 
-  renderGroupChips();
   renderUnassigned();
   renderGroupRoster();
   renderUngroupedAssign();
@@ -1061,9 +1457,9 @@ function renderPartnerList(){
   }
 
   box.innerHTML = teams.map((team, ti)=>`
-    <div class="unassigned-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      ${team.map((m,i)=> `${i>0 ? `<span style="color:var(--ink-soft);">↔</span>` : ""}<span style="font-weight:700;color:var(--sage-deep);">${angelLabel(m)}</span>`).join("")}
-      <button class="btn ghost" style="border:1px solid var(--amber);color:#8A5A1E;margin-left:auto;" data-dissolve="${ti}">解除配對</button>
+    <div class="unassigned-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 14px;margin-bottom:6px;">
+      ${team.map((m,i)=> `${i>0 ? `<span style="color:var(--ink-soft);font-size:12px;">↔</span>` : ""}<span style="font-weight:600;color:var(--sage-deep);font-size:13px;">${angelLabel(m)}</span>`).join("")}
+      <button class="btn ghost" style="border:1px solid var(--amber);color:#8A5A1E;margin-left:auto;padding:4px 10px;font-size:12px;" data-dissolve="${ti}">解除配對</button>
     </div>
   `).join("");
 
@@ -1176,17 +1572,22 @@ function memberLine(name){
   const list = byAngel[name] || [];
   const label = name + (akaOf[name] ? `（${akaOf[name]}）` : "");
   if(list.length){
-    const items = list.map(c=> c.name + (c.note ? `【${c.note}】` : "")).join("、");
-    return `　・${label}：${items}`;
+    const lines = [];
+    list.forEach(c=>{
+      lines.push(`・${c.name}${c.note?`【${c.note}】`:""}→ ${label}`);
+      if(c.referrer) lines.push(`介紹人：${c.referrer}`);
+      if(c.careWorker) lines.push(`關懷員：${c.careWorker}`);
+    });
+    return lines;
   }
   const mates = teammatesOf(name);
   if(mates.length){
-    return `　・${label}：搭檔 ${mates.join("、")}（尚無小夥伴）`;
+    return [`・${label}：搭檔 ${mates.join("、")}（尚無小夥伴）`];
   }
   if(PENDING_EXEMPT.includes(name)){
-    return `　・${label}：這次先不分配`;
+    return [`・${label}：這次先不分配`];
   }
-  return `　・${label}：待配對`;
+  return [`・${label}：待配對`];
 }
 
 function generateAnnouncement(){
@@ -1199,7 +1600,7 @@ function generateAnnouncement(){
   Object.keys(groups).forEach(g=>{
     lines.push(`${groupDisplayName(g)}`);
     groups[g].forEach(member=>{
-      lines.push(memberLine(member));
+      lines.push(...memberLine(member));
     });
     lines.push("");
   });
@@ -1210,7 +1611,7 @@ function generateAnnouncement(){
   });
   if(ungrouped.length){
     lines.push("未分組");
-    ungrouped.forEach(n=> lines.push(memberLine(n)));
+    ungrouped.forEach(n=> lines.push(...memberLine(n)));
   }
 
   return lines.join("\n");
@@ -1226,22 +1627,7 @@ function generateNewStudentAnnouncement(){
   const batches = getLatest1xxBatches(3);
   const lines = ["新生與小天使配對名單", ""];
   batches.forEach(b=>{
-    const date = BATCH_INFO[b] ? BATCH_INFO[b].date : "";
-    lines.push(`【${b}${date ? "　"+date : ""}】`);
-    const rows = cases.filter(c=>c.batch===b);
-    const merged = [];
-    const idx = {};
-    rows.forEach(c=>{
-      const key = c.no + "|" + c.name;
-      if(idx[key]===undefined){ idx[key]=merged.length; merged.push({name:c.name, angels:[c.angel], notes: c.note?[c.note]:[]}); }
-      else { const m = merged[idx[key]]; m.angels.push(c.angel); if(c.note && !m.notes.includes(c.note)) m.notes.push(c.note); }
-    });
-    if(!merged.length){ lines.push("（目前尚無資料）"); }
-    merged.forEach(m=>{
-      const angelsStr = m.angels.map(a=> a + (akaOf[a]?`（${akaOf[a]}）`:"")).join("、");
-      const noteStr = m.notes.length ? `【${m.notes.join("、")}】` : "";
-      lines.push(`・${m.name} → ${angelsStr}${noteStr}`);
-    });
+    lines.push(...generateBatchBlock(b));
     lines.push("");
   });
   return lines.join("\n").trim();
@@ -1255,20 +1641,16 @@ function generateBatchBlock(b){
   const idx = {};
   rows.forEach(c=>{
     const key = c.no + "|" + c.name;
-    if(idx[key]===undefined){ idx[key]=merged.length; merged.push({no:c.no, group:c.group||"", referrer:c.referrer||"", careWorker:c.careWorker||"", name:c.name, angels:[c.angel], notes: c.note?[c.note]:[]}); }
+    if(idx[key]===undefined){ idx[key]=merged.length; merged.push({referrer:c.referrer||"", careWorker:c.careWorker||"", name:c.name, angels:[c.angel], notes: c.note?[c.note]:[]}); }
     else { const m = merged[idx[key]]; m.angels.push(c.angel); if(c.note && !m.notes.includes(c.note)) m.notes.push(c.note); }
   });
   if(!merged.length){ lines.push("（目前尚無資料）"); }
   merged.forEach(m=>{
     const angelsStr = m.angels.map(a=> a + (akaOf[a]?`（${akaOf[a]}）`:"")).join("、");
     const noteStr = m.notes.length ? `【${m.notes.join("、")}】` : "";
-    const prefixParts = [];
-    if(m.group) prefixParts.push(`組別${m.group}`);
-    if(m.no) prefixParts.push(`編號${m.no}`);
-    const prefix = prefixParts.length ? `（${prefixParts.join("、")}）` : "";
-    const referrerStr = m.referrer ? `　介紹人：${m.referrer}` : "";
-    const careWorkerStr = m.careWorker ? `　關懷員：${m.careWorker}` : "";
-    lines.push(`・${m.name}${prefix} → ${angelsStr}${noteStr}${referrerStr}${careWorkerStr}`);
+    lines.push(`・${m.name}→ ${angelsStr}${noteStr}`);
+    if(m.referrer) lines.push(`介紹人：${m.referrer}`);
+    if(m.careWorker) lines.push(`關懷員：${m.careWorker}`);
   });
   return lines;
 }
@@ -1363,8 +1745,187 @@ document.getElementById("resetGroupLink").addEventListener("click", ()=>{
     render();
   });
 });
+let selectedLeader = null;
+let expandedLeaderMember = null;
+
+const LEADER_TODO_HTML = `
+  <div class="leader-todo-box">
+    <p><strong>一、8 月新生這梯 1-87／88／89</strong></p>
+    <p>小天使一定要跟介紹人聯繫，對新生有好奇心、完全了解新生寶寶，請介紹人拉群組和新生互相認識，課前先通話。</p>
+    <p>貼心：一週前提醒新生要上課。</p>
+    <ol>
+      <li>接畢業、接畢業！很重要！！！（不行的話，一定要找人幫忙，要有接待、要送花、要有心、要祝福）</li>
+      <li>課後課、同學會陪伴</li>
+      <li>每週跟新生寶寶通話一次，關心課後課收穫、同學會收穫</li>
+      <li>約關懷員解圓夢計畫（課後課 2 堂）</li>
+    </ol>
+  </div>
+  <div class="leader-todo-box">
+    <p><strong>二、小天使與小天使</strong></p>
+    <p>每週通話，關心圓夢計畫、鼓勵圓夢計畫。</p>
+  </div>
+  <div class="leader-todo-box amber">
+    <p><strong>三、9/17（四）小天使復盤聚會</strong></p>
+    <p>晚上 19:00－21:30</p>
+  </div>
+`;
+
+function renderLeaderChips(){
+  const row = document.getElementById("leaderChipRow");
+  row.innerHTML = Object.keys(groups).map(g=>{
+    const col = GROUP_COLORS[g];
+    const active = selectedLeader===g;
+    const style = active ? `background:${col.text};color:#fff;` : `background:${col.bg};color:${col.text};`;
+    return `<div class="leader-chip" data-leader="${g}" style="${style}">${groupDisplayName(g)}</div>`;
+  }).join("");
+
+  row.querySelectorAll("[data-leader]").forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      selectedLeader = selectedLeader===chip.dataset.leader ? null : chip.dataset.leader;
+      expandedLeaderMember = null;
+      renderLeaderChips();
+      renderLeaderDetail();
+    });
+  });
+}
+
+function renderLeaderDetail(){
+  const box = document.getElementById("leaderDetail");
+  if(!selectedLeader){
+    box.innerHTML = "";
+    return;
+  }
+  const g = selectedLeader;
+  const col = GROUP_COLORS[g];
+  const members = groups[g].filter(n=> byAngel[n]!==undefined);
+
+  const memberRows = members.map(name=>{
+    const list = byAngel[name] || [];
+    const mates = teammatesOf(name);
+    let summary;
+    if(list.length){
+      summary = list.length + " 位小夥伴";
+    } else if(mates.length){
+      summary = "搭檔 " + mates.join("、") + "（尚無小夥伴）";
+    } else if(PENDING_EXEMPT.includes(name)){
+      summary = "這次先不分配";
+    } else {
+      summary = "待配對";
+    }
+
+    const caseRows = list.map(c=>`
+      <tr>
+        <td class="no">${c.group||"—"}</td>
+        <td class="batch">${c.batch}</td>
+        <td class="no">${c.no||"—"}</td>
+        <td class="name">${c.name}</td>
+        <td class="note">${c.referrer||"—"}</td>
+        <td class="note">${c.careWorker||"—"}</td>
+      </tr>
+    `).join("");
+
+    const detailBody = list.length ? `
+      <table style="margin-top:10px;">
+        <thead><tr><th>組別</th><th>批次</th><th>編號</th><th>小夥伴姓名</th><th>介紹人</th><th>關懷員</th></tr></thead>
+        <tbody>${caseRows}</tbody>
+      </table>
+    ` : `<div style="font-size:12.5px;color:var(--ink-soft);margin-top:8px;">${mates.length ? "搭檔："+mates.join("、")+"（尚無小夥伴）" : (PENDING_EXEMPT.includes(name) ? "這次先不分配" : "目前尚無配對") }</div>`;
+
+    return `
+      <div class="leader-member-card" data-member="${name}">
+        <div class="leader-member-name" style="cursor:pointer;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${angelLabel(name)}<span class="count-badge">${list.length + mates.length} 位</span></span>
+          <span class="chev" data-member-chev="${name}" style="${expandedLeaderMember===name ? 'transform:rotate(90deg);' : ''}">▶</span>
+        </div>
+        <div class="leader-member-detail">${summary}</div>
+        <div data-member-body="${name}" style="display:${expandedLeaderMember===name ? 'block' : 'none'};">${detailBody}</div>
+      </div>
+    `;
+  }).join("");
+
+  box.innerHTML = `
+    <div class="leader-detail">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div style="font-weight:700;color:${col.text};font-size:15px;">${groupDisplayName(g)} 的小天使（共 ${members.length} 位）</div>
+        <button class="btn ghost" style="border:1px solid var(--sage);" id="copyLeaderMembersBtn">複製組員名單</button>
+      </div>
+      ${memberRows}
+      <div class="leader-todo-section">
+        <div class="leader-todo-title">目前進度，要做什麼：</div>
+        ${LEADER_TODO_HTML}
+      </div>
+    </div>
+  `;
+
+  const copyLeaderBtn = document.getElementById("copyLeaderMembersBtn");
+  if(copyLeaderBtn){
+    copyLeaderBtn.addEventListener("click", ()=>{
+      const lines = [`${groupDisplayName(g)}　組員名單（共 ${members.length} 位）`, ""];
+      members.forEach(name=>{
+        lines.push(`・${angelLabelPlain(name)}`);
+        const list = byAngel[name] || [];
+        list.forEach(c=>{
+          const tier = tierLabel(c.batch);
+          lines.push(`　→ ${c.name}（${tier}${tier?" ":""}${c.batch}）${c.note?`【${c.note}】`:""}`);
+        });
+        const mates = teammatesOf(name);
+        mates.forEach(m=>{
+          lines.push(`　↔ 搭檔小天使：${angelLabelPlain(m)}`);
+        });
+        if(!list.length && !mates.length){
+          lines.push(PENDING_EXEMPT.includes(name) ? "　（這次先不分配）" : "　（待配對）");
+        }
+      });
+      copyWithFeedback(copyLeaderBtn, lines.join("\n"), "已複製");
+    });
+  }
+
+  box.querySelectorAll(".leader-member-name").forEach(head=>{
+    head.addEventListener("click", ()=>{
+      const card = head.closest(".leader-member-card");
+      const name = card.dataset.member;
+      const body = box.querySelector(`[data-member-body="${CSS.escape(name)}"]`);
+      const chev = box.querySelector(`[data-member-chev="${CSS.escape(name)}"]`);
+      const isOpen = body.style.display !== "none";
+      body.style.display = isOpen ? "none" : "block";
+      chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+      expandedLeaderMember = isOpen ? null : name;
+    });
+  });
+}
 
 render();
+renderLeaderChips();
+renderLeaderDetail();
+
+document.getElementById("leaderPanelHead").addEventListener("click", ()=>{
+  const body = document.getElementById("leaderPanelBody");
+  const chev = document.getElementById("leaderPanelChev");
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+});
+
+document.getElementById("adminToggleBtn").addEventListener("click", ()=>{
+  const box = document.getElementById("adminTools");
+  const btn = document.getElementById("adminToggleBtn");
+  const isOpen = box.style.display !== "none";
+  box.style.display = isOpen ? "none" : "block";
+  btn.textContent = isOpen
+    ? "▾ 顯示管理工具（批次資料／名單管理／公告複製）"
+    : "▴ 隱藏管理工具";
+});
+
+document.querySelectorAll(".collapsible-head").forEach(head=>{
+  head.addEventListener("click", ()=>{
+    const targetId = head.dataset.target;
+    const body = document.getElementById(targetId);
+    const chev = head.querySelector(`[data-chev-for="${targetId}"]`);
+    const isOpen = body.style.display !== "none";
+    body.style.display = isOpen ? "none" : "block";
+    if(chev) chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+  });
+});
 </script>
 </body>
 </html>
