@@ -54,6 +54,22 @@
   .primary-btn:disabled{ background:#C7CDC8;cursor:not-allowed; box-shadow:none; }
   .err-msg{ font-size:12.5px;color:#C0435C;margin:-4px 0 12px;min-height:16px; }
   .hint-msg{ font-size:11.5px;color:var(--ink-soft);margin:10px 0 0; line-height:1.6; }
+  .suggest-box{
+    position:absolute; left:0; right:0; top:calc(100% - 8px); z-index:20;
+    background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(80,70,140,0.18);
+    border:1px solid var(--line); max-height:220px; overflow-y:auto;
+    display:none; text-align:left;
+  }
+  .suggest-box.show{ display:block; }
+  .suggest-group-label{
+    font-size:10.5px; font-weight:700; color:var(--sage-deep); background:var(--sage-pale);
+    padding:5px 14px;
+  }
+  .suggest-item{
+    padding:10px 14px; font-size:14px; color:var(--ink); cursor:pointer;
+    border-top:1px solid var(--line);
+  }
+  .suggest-item:hover, .suggest-item.active{ background:var(--sage-pale); }
 
   /* ---------- 主畫面 ---------- */
   #dashScreen{ display:none; }
@@ -150,8 +166,10 @@
   <div class="card login-card">
     <h1>👼 小天使登入系統</h1>
     <div class="sub">輸入你的名字和密碼。第一次輸入會自動幫你建立帳號，之後要用同一組密碼登入。</div>
-    <input type="text" id="nameInput" placeholder="你的名字（跟名單上一致）" list="nameSuggestions" autocomplete="off">
-    <datalist id="nameSuggestions"></datalist>
+    <div style="position:relative;">
+      <input type="text" id="nameInput" placeholder="你的名字（跟名單上一致）" autocomplete="off">
+      <div id="nameSuggestBox" class="suggest-box"></div>
+    </div>
     <input type="password" id="pwInput" placeholder="設定或輸入你的密碼">
     <div class="err-msg" id="loginErr"></div>
     <button class="primary-btn" id="enterBtn">登入 / 註冊</button>
@@ -954,8 +972,34 @@ function renderMemberDash(name, content){
 }
 
 // 記住上次登入的名字，方便下次自動帶入（密碼仍需輸入）
-document.getElementById("nameSuggestions").innerHTML =
-  Object.keys(groupOf).map(n=>`<option value="${n}">`).join("");
+const suggestBox = document.getElementById("nameSuggestBox");
+function renderSuggestions(filter){
+  const f = (filter||"").trim();
+  let html = "";
+  Object.keys(groups).forEach(g=>{
+    const matches = groups[g].filter(n=> !f || n.includes(f) || (akaOf[n]&&akaOf[n].includes(f)));
+    if(!matches.length) return;
+    html += `<div class="suggest-group-label">${groupDisplayName(g)}</div>`;
+    matches.forEach(n=>{
+      html += `<div class="suggest-item" data-name="${n}">${label(n)}</div>`;
+    });
+  });
+  suggestBox.innerHTML = html;
+  suggestBox.querySelectorAll(".suggest-item").forEach(el=>{
+    el.addEventListener("mousedown", e=>{
+      e.preventDefault();
+      nameInput.value = el.dataset.name;
+      localStorage.setItem("lastLoginName", el.dataset.name);
+      suggestBox.classList.remove("show");
+      pwInput.focus();
+    });
+  });
+}
+nameInput.addEventListener("focus", ()=>{ renderSuggestions(nameInput.value); suggestBox.classList.add("show"); });
+nameInput.addEventListener("input", ()=>{ renderSuggestions(nameInput.value); suggestBox.classList.add("show"); });
+document.addEventListener("click", e=>{
+  if(!suggestBox.contains(e.target) && e.target!==nameInput) suggestBox.classList.remove("show");
+});
 
 const savedName = localStorage.getItem("lastLoginName");
 if(savedName) nameInput.value = savedName;
