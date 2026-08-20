@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>小天使登入系統</title>
+<style>
+  :root{
+    --bg1:#EAF2FB; --bg2:#F3E9FB; --bg3:#FDEFE0;
+    --card:#FFFFFF;
+    --ink:#2B3A44; --ink-soft:#6E7B87;
+    --line:#E7E4F3;
+    --sage:#4F7A6B; --sage-deep:#345A4C; --sage-pale:#E4EFE9;
+    --amber:#E0A248; --amber-deep:#B5732A; --amber-pale:#FBEEDD;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,230,190,0.55) 0%, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(200,220,255,0.5) 0%, transparent 45%),
+      linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:20px 16px 60px; }
+  h1,h2,h3{ margin:0; }
+  button{ font-family:inherit; }
+  .card{
+    background:rgba(255,255,255,0.9); backdrop-filter:blur(12px);
+    border-radius:22px; border:1px solid rgba(255,255,255,0.6);
+    box-shadow:0 8px 26px rgba(120,100,180,0.12);
+  }
+
+  /* ---------- 登入畫面 ---------- */
+  #loginScreen{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  .login-card{ padding:32px 28px 28px; width:min(94vw,420px); text-align:center; }
+  .login-card h1{ font-size:24px;margin-bottom:4px;color:var(--sage-deep);font-weight:800; }
+  .login-card .sub{ font-size:13px;color:var(--ink-soft);margin-bottom:20px;line-height:1.6; }
+  input[type=text], input[type=password]{
+    width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);
+    font-size:15px;text-align:center;margin-bottom:12px;outline:none;background:#fff;
+  }
+  input:focus{ border-color:var(--sage); }
+  .primary-btn{
+    width:100%;padding:13px;border-radius:999px;border:none;
+    background:linear-gradient(135deg,#5C8C7B,#3F6656);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 16px rgba(52,90,76,0.3);
+  }
+  .primary-btn:disabled{ background:#C7CDC8;cursor:not-allowed; box-shadow:none; }
+  .err-msg{ font-size:12.5px;color:#C0435C;margin:-4px 0 12px;min-height:16px; }
+  .hint-msg{ font-size:11.5px;color:var(--ink-soft);margin:10px 0 0; line-height:1.6; }
+
+  /* ---------- 主畫面 ---------- */
+  #dashScreen{ display:none; }
+  .top-bar{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;
+  }
+  .top-bar .who{ font-size:19px; font-weight:800; color:var(--sage-deep); }
+  .top-bar .role-badge{
+    font-size:11.5px; font-weight:700; padding:4px 12px; border-radius:999px;
+    background:var(--amber-pale); color:var(--amber-deep); margin-left:8px;
+  }
+  .logout-btn{
+    border:none; background:var(--card); color:var(--ink-soft); font-size:12.5px;
+    padding:8px 14px; border-radius:999px; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.06);
+  }
+
+  .panel{ padding:18px 20px; margin-bottom:14px; }
+  .panel-title{ font-size:15px; font-weight:800; color:var(--sage-deep); margin-bottom:4px; }
+  .panel-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:12px; }
+
+  .member-card{
+    background:#FBFAF6; border-radius:14px; padding:12px 16px; margin-bottom:8px;
+  }
+  .member-card .mc-head{
+    display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  }
+  .member-card .mc-name{ font-weight:700; color:var(--sage-deep); font-size:15px; }
+  .member-card .mc-badge{
+    font-size:11px; font-weight:700; background:var(--sage-pale); color:var(--sage-deep);
+    padding:2px 10px; border-radius:999px;
+  }
+  .member-card .mc-body{ display:none; margin-top:10px; font-size:12.5px; color:var(--ink); line-height:1.8; }
+  .member-card .mc-body table{ width:100%; border-collapse:collapse; margin-top:6px; }
+  .member-card .mc-body td{ padding:5px 6px; border-top:1px solid var(--line); font-size:13px; }
+  .chev{ color:var(--ink-soft); transition:transform .15s ease; }
+  .member-card.open .chev{ transform:rotate(90deg); }
+  .member-card.open .mc-body{ display:block; }
+
+  .self-stat-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .self-stat{
+    flex:1; min-width:110px; background:#FBFAF6; border-radius:14px; padding:12px; text-align:center;
+  }
+  .self-stat .ss-num{ font-size:22px; font-weight:900; color:var(--sage-deep); }
+  .self-stat .ss-label{ font-size:11px; color:var(--ink-soft); }
+
+  .empty-note{ color:var(--ink-soft); font-size:13px; text-align:center; padding:20px 0; }
+
+  /* ---------- 搭檔感情狀態 ---------- */
+  .partner-card{ background:linear-gradient(135deg,var(--amber-pale) 0%,#fff 60%); }
+  .partner-row{
+    display:flex; align-items:center; justify-content:center; gap:18px; margin:10px 0 16px;
+  }
+  .partner-avatar-wrap{ text-align:center; }
+  .partner-avatar{
+    width:56px; height:56px; border-radius:50%; background:var(--sage-pale);
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    border:3px solid var(--amber); margin:0 auto 4px;
+    animation:partnerBob 2.6s ease-in-out infinite;
+  }
+  @keyframes partnerBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+  .partner-name{ font-size:11.5px; font-weight:700; color:var(--sage-deep); max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .partner-heart{ font-size:26px; animation:heartPulse 1.4s ease-in-out infinite; }
+  @keyframes heartPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
+  .stage-box{ background:rgba(255,255,255,0.7); border-radius:14px; padding:12px 14px; }
+  .stage-title{ font-size:16px; font-weight:800; color:var(--amber-deep); margin-bottom:2px; }
+  .stage-desc{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+  .stage-sub{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+  .progress-outer{ background:var(--sage-pale); border-radius:999px; height:10px; overflow:hidden; }
+  .progress-inner{ height:100%; background:linear-gradient(90deg,var(--amber),#F0C77A); border-radius:999px; transition:width .5s ease; }
+
+  .arrival-row{
+    background:#FBFAF6; border-radius:14px; padding:10px 14px; margin-bottom:8px;
+    transition:background .3s ease, box-shadow .3s ease;
+  }
+  .arrival-row.both-arrived{
+    background:linear-gradient(135deg,#FFF3D6,#FBE7F5);
+    box-shadow:0 0 0 2px var(--amber);
+  }
+  .arrival-label{ font-size:14px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+  .arrival-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+  .mini-toggle{
+    flex:1; min-width:120px; padding:9px 10px; border-radius:10px; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink-soft); font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .mini-toggle.on{ background:var(--sage); border-color:var(--sage); color:#fff; }
+  .mini-toggle.on-absent{ background:#C0435C; border-color:#C0435C; color:#fff; }
+  .reason-note{ font-size:11px; color:#C0435C; background:#FCE9EC; border-radius:8px; padding:6px 10px; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<!-- ============ 登入 / 註冊畫面 ============ -->
+<div id="loginScreen">
+  <div class="card login-card">
+    <h1>👼 小天使登入系統</h1>
+    <div class="sub">輸入你的名字和密碼。第一次輸入會自動幫你建立帳號，之後要用同一組密碼登入。</div>
+    <input type="text" id="nameInput" placeholder="你的名字（跟名單上一致）" list="nameSuggestions" autocomplete="off">
+    <datalist id="nameSuggestions"></datalist>
+    <input type="password" id="pwInput" placeholder="設定或輸入你的密碼">
+    <div class="err-msg" id="loginErr"></div>
+    <button class="primary-btn" id="enterBtn">登入 / 註冊</button>
+    <div class="hint-msg">大天使請直接輸入你的大天使名字（例如：特特、小珠、韋萱、Yoyo、Linda、鎮宏），登入後會看到專屬的管理畫面。</div>
+  </div>
+</div>
+
+<!-- ============ 主畫面 ============ -->
+<div id="dashScreen">
+  <div class="wrap">
+    <div class="top-bar">
+      <div><span class="who" id="whoName">－</span><span class="role-badge" id="roleBadge">小天使</span></div>
+      <button class="logout-btn" id="logoutBtn">登出</button>
+    </div>
+    <div id="dashContent"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// ====== Firebase 設定區（跟主網頁、小天使村共用同一組專案設定即可） ======
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDO2Bofv6z9rliKS_8u6YahP4iGcjA-US4",
+  databaseURL: "https://angel-smallbig-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "angel-smallbig",
+};
+let fbEnabled = false;
+let fbDb = null;
+try{
+  if(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("PASTE_") !== 0 && window.firebase){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    fbEnabled = true;
+  }
+}catch(e){ fbEnabled = false; }
+// ================================================================
+
+// ---------- 名單資料（跟主網頁同一份） ----------
+const groups = {
+  "特特": ["特特","vigor","哲豪","Mina","湘庭Gin","77","冠蓁","周政平"],
+  "小珠": ["小珠","蜜卡","冠臻","阿棠","書書","楊雲","小束","Bella"],
+  "韋萱": ["韋萱","依涵（菲菲）","翠貞","威儀","君君","駿駿","陳姵瑄","Vic","江美燕","玲慧"],
+  "Yoyo": ["Yoyo","薏涵","楊楊","菜心","彩棠","王岑芯","佳霖Zora","盧家淑"],
+  "Linda": ["Linda","Yvoone（依樺）","至平","慈筠","夢昕","明貞Sabrina Li","古雅婷"],
+  "鎮宏": ["鎮宏","國順","KC","銘余","Anne","盧捷偉／泰安產物","文瑜","葳樺"],
+};
+const GROUP_ORDER_LABEL = {"特特":"一","小珠":"二","韋萱":"三","Yoyo":"四","Linda":"五","鎮宏":"六"};
+const GROUP_COLORS = {
+  "特特": {bg:"#E1F0EA", text:"#1F6B54"},
+  "小珠": {bg:"#FBE3DA", text:"#9C4423"},
+  "韋萱": {bg:"#FBEEC7", text:"#8A6A0A"},
+  "Yoyo": {bg:"#DCEAF5", text:"#1F5C82"},
+  "Linda":{bg:"#F3E1EE", text:"#7A3465"},
+  "鎮宏": {bg:"#E7EEDA", text:"#4C5C1E"},
+};
+const akaOf = {
+  "威儀": "江威儀", "楊楊": "楊子軒", "小束": "束其涵", "特特": "瓦特", "小珠": "王小珠",
+  "楊雲": "雲雲", "駿駿": "黃怡駿", "哲豪": "許哲豪", "鎮宏": "陳鎮宏",
+};
+const DEFAULT_TEAMS = [
+  ["Mina","冠蓁"],["楊楊","菜心"],["慈筠","駿駿"],["夢昕","明貞Sabrina Li"],
+  ["陳姵瑄","湘庭Gin"],["彩棠","威儀"],["冠臻","王岑芯"],["依涵（菲菲）","小束"],
+  ["佳霖Zora","古雅婷"],["77","君君"],["阿棠","周政平"],["哲豪","盧捷偉／泰安產物"],
+  ["Vic","江美燕"],["玲慧","盧家淑"],["Bella","書書"],
+];
+const cases = [
+  {batch:"1-87", no:"30190", group:"15-1", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"徐以倫", angel:"鎮宏", note:""},
+  {batch:"1-87", no:"30190", group:"15-1", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"徐以倫", angel:"KC", note:""},
+  {batch:"1-87", no:"32212", group:"15-4", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"王秋燕", angel:"蜜卡", note:""},
+  {batch:"1-87", no:"32215", group:"20-2", referrer:"10612_林姸孜", careWorker:"2331_謝涵汝", name:"杜淑卿", angel:"Yvoone（依樺）", note:""},
+  {batch:"1-87", no:"32727", group:"15-2", referrer:"8501_石至平", careWorker:"8501_石至平", name:"陳冠維", angel:"至平", note:"OR Linda"},
+  {batch:"1-88", no:"33062", group:"15-3", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林淑真", angel:"韋萱", note:""},
+  {batch:"1-88", no:"33404", group:"15-4", referrer:"20178_陳韋萱", careWorker:"13063_葉翠貞", name:"林素惠", angel:"韋萱", note:""},
+  {batch:"1-88", no:"33506", group:"15-1", referrer:"22964_黃蘋", careWorker:"2331_謝涵汝", name:"周金柱", angel:"銘余", note:""},
+  {batch:"1-88", no:"33780", group:"15-2", referrer:"7235_王岑芯（瓦特）", careWorker:"7235_王岑芯", name:"鄭家妤", angel:"特特", note:""},
+  {batch:"1-89", no:"32633", referrer:"4593_陳書麟", careWorker:"3630_楊宗益", name:"張薏宣", angel:"vigor", note:""},
+  {batch:"1-89", no:"32736", referrer:"10637_王薏涵", careWorker:"7235_王岑芯", name:"廖絲環", angel:"薏涵", note:""},
+  {batch:"1-89", no:"33011", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林純安", angel:"Yoyo", note:""},
+  {batch:"1-89", no:"33107", referrer:"4709_張國順", careWorker:"2331_謝涵汝", name:"林子傑", angel:"國順", note:""},
+  {batch:"1-89", no:"33346", referrer:"5582_邱劭瑜", careWorker:"2331_謝涵汝", name:"黃晉慶", angel:"至平", note:""},
+  {batch:"1-89", no:"33641", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"李鈴靜", angel:"小珠", note:""},
+  {batch:"1-89", no:"34077", referrer:"", careWorker:"", name:"楊雅榆", angel:"國順", note:""},
+  {batch:"3-21", no:"22566", referrer:"12895_李佳怡", careWorker:"10436_周書儀", name:"黃湘庭", angel:"書書", note:""},
+  {batch:"3-21", no:"14595", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"林千翔", angel:"哲豪", note:""},
+  {batch:"3-21", no:"25616", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"唐玉潔", angel:"翠貞", note:""},
+  {batch:"3-21", no:"20178", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"陳韋萱", angel:"翠貞", note:""},
+  {batch:"3-21", no:"28368", referrer:"12895_李佳怡", careWorker:"10436_周書儀", name:"許哲豪", angel:"盧捷偉／泰安產物", note:""},
+  {batch:"3-21", no:"28728", referrer:"6582_楊雲", careWorker:"6582_楊雲", name:"鄭晴文", angel:"楊雲", note:""},
+  {batch:"3-21", no:"29420", referrer:"7235_王岑芯", careWorker:"7235_王岑芯", name:"黃雅琪", angel:"君君", note:""},
+  {batch:"3-21", no:"28660", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"許玲慧", angel:"翠貞", note:""},
+  {batch:"3-21", no:"2586", referrer:"2331_謝涵汝", careWorker:"2331_謝涵汝", name:"王麗華", angel:"Anne", note:""},
+  {batch:"3-22", no:"22237", group:"12-3", referrer:"6527_鄭文瑜", careWorker:"6527_鄭文瑜", name:"涂晧怡", angel:"文瑜", note:""},
+  {batch:"3-22", no:"9365", group:"12-4", referrer:"3773_蔡葳樺", careWorker:"3773_蔡葳樺", name:"林嘉慈", angel:"葳樺", note:""},
+  {batch:"3-22", no:"9266", group:"12-5", referrer:"4137_詹依宛", careWorker:"2331_謝涵汝", name:"闕嘉凡", angel:"Anne", note:""},
+  {batch:"3-23", no:"28455", group:"38-2", referrer:"26535_江威儀", careWorker:"13063_葉翠貞", name:"周歆凌", angel:"君君", note:""},
+  {batch:"3-23", no:"26535", group:"10-6", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"江威儀", angel:"翠貞", note:""},
+  {batch:"3-23", no:"29197", group:"38-5", referrer:"13063_葉翠貞", careWorker:"13063_葉翠貞", name:"古羽庭", angel:"薏涵", note:""},
+  {batch:"3-23", no:"22757", group:"38-3", referrer:"16000_莊書怡", careWorker:"7235_王岑芯", name:"黃芯璿", angel:"77", note:""},
+  {batch:"3-23", no:"9694", group:"38-4", referrer:"7366_鄭宇辰", careWorker:"3384_李明貞", name:"王成毓", angel:"阿棠", note:""},
+];
+
+const groupOf = {};
+Object.keys(groups).forEach(g=> groups[g].forEach(n=> groupOf[n]=g));
+const byAngel = {};
+cases.forEach(c=>{ if(!byAngel[c.angel]) byAngel[c.angel]=[]; byAngel[c.angel].push(c); });
+Object.keys(groupOf).forEach(n=>{ if(!byAngel[n]) byAngel[n]=[]; });
+
+function label(name){ return name + (akaOf[name] ? `（${akaOf[name]}）` : ""); }
+function teammateOf(name){ const t = DEFAULT_TEAMS.find(t=>t.includes(name)); return t? t.find(n=>n!==name): null; }
+function groupDisplayName(g){ return GROUP_ORDER_LABEL[g] ? `${GROUP_ORDER_LABEL[g]}、${g}` : g; }
+const LEADER_NAMES = Object.keys(groups); // 大天使名字＝該組的 key
+
+// ---------- 每週打卡（即時同步） ----------
+// 「陪同類」任務：小天使自己到 + 小夥伴(新生)有沒有也到，兩個都到會有夢幻連動特效
+// 實際的同學會／課後課場次（有日期、主題、地點）
+const EVENTS = [
+  {key:"e0819", emoji:"👥", date:"8/19（三）", time:"19:00－22:00", type:"同學會", topic:"", location:"leat會議中心 1003", buddyRequired:true},
+  {key:"e0826", emoji:"📖", date:"8/26（三）", time:"19:00－22:00", type:"課後課", topic:"我喜歡／討厭自己的原因", location:"格來天漾 13F", buddyRequired:true},
+  {key:"e0903", emoji:"📖", date:"9/3（四）",  time:"19:00－22:00", type:"課後課", topic:"上平下緣傳愛道", location:"格來天漾 13F", buddyRequired:true},
+  {key:"e0908", emoji:"📖", date:"9/8（二）",  time:"19:00－22:00", type:"課後課", topic:"對好心沒好報的誤解", location:"格來天漾 13F", buddyRequired:true},
+  {key:"e0916", emoji:"📖", date:"9/16（三）", time:"19:00－22:00", type:"課後課", topic:"金錢的助流", location:"格來天漾 13F", buddyRequired:true},
+  {key:"e0823", emoji:"🎓", date:"8/23（日）", time:"13:00－18:00", type:"巨笑小天使培訓", topic:"", location:"", buddyRequired:false},
+  {key:"e0917", emoji:"🎉", date:"9/17（四）", time:"19:00－21:30", type:"小天使聚會", topic:"", location:"", buddyRequired:false},
+];
+const EVENT_DATES = {
+  e0819: new Date(2026,7,19), e0826: new Date(2026,7,26), e0903: new Date(2026,8,3),
+  e0908: new Date(2026,8,8),  e0916: new Date(2026,8,16),
+  e0823: new Date(2026,7,23), e0917: new Date(2026,8,17),
+};
+function weekKeyForDate(d){
+  const diffDays = Math.floor((d - WEEK_START) / 86400000);
+  const idx = Math.max(Math.floor(diffDays/7), 0);
+  return `w${idx+1}`;
+}
+// 搭檔小天使之間：每週要做的事（都算進感情經驗值）
+const PARTNER_WEEKLY_TASKS = [
+  {key:"call", emoji:"📞", label:"每週通話／圓夢支持"},
+];
+const TASKS = PARTNER_WEEKLY_TASKS;
+
+const WEEK_START = new Date(2026,7,3);
+function formatMD(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+function currentWeekIndex(){
+  const diffDays = Math.floor((new Date() - WEEK_START) / 86400000);
+  return Math.max(Math.floor(diffDays/7), 0);
+}
+const weekIdx = currentWeekIndex();
+const weekKey = `w${weekIdx+1}`;
+const weekStart = new Date(WEEK_START.getTime()); weekStart.setDate(weekStart.getDate()+weekIdx*7);
+const weekEnd = new Date(weekStart.getTime()); weekEnd.setDate(weekEnd.getDate()+6);
+const weekLabel = `第 ${weekIdx+1} 週（${formatMD(weekStart)}－${formatMD(weekEnd)}）`;
+
+const now = new Date();
+const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
+const monthLabel = `${now.getFullYear()} 年 ${now.getMonth()+1} 月`;
+let monthlyData = {}; // {name:true}  當月
+let allMonthsReview = {}; // {monthKey:{name:true}}  歷史每月覆盤，用來算經驗值
+function isMonthlyDone(name){ return !!monthlyData[name]; }
+function setMonthlyDone(name, val){
+  if(fbEnabled){ fbDb.ref(`village/monthlyReview/${monthKey}/${encodeURIComponent(name)}`).set(val); }
+  else {
+    monthlyData[name] = val;
+    if(!allMonthsReview[monthKey]) allMonthsReview[monthKey]={};
+    allMonthsReview[monthKey][name] = val;
+    refreshCurrentDash();
+  }
+}
+
+let checkinData = {};      // {task:{name:true}}  本週：搭檔每週任務（通話／圓夢支持）
+let allWeeksCalls = {};    // {weekKey:{call:{name:true}, dream:{...}}}  歷史每週打卡，用來算感情經驗值
+let eventArriveData = {};      // {eventKey:{name:true}}  場次：小天使自己有沒有到
+let eventBuddyArriveData = {}; // {eventKey:{name:true}}  場次：小夥伴(新生)有沒有到
+let lastCelebrated = {};   // 記錄哪些「同時抵達」已經慶祝過，避免同一次觸發兩次特效
+
+function isChecked(name, taskKey){ return !!(checkinData[taskKey] && checkinData[taskKey][name]); }
+function eventStatusOf(name, eventKey){ return (eventArriveData[eventKey] && eventArriveData[eventKey][name]) || null; }
+function buddyEventStatusOf(name, eventKey){ return (eventBuddyArriveData[eventKey] && eventBuddyArriveData[eventKey][name]) || null; }
+function isEventChecked(name, eventKey){ const s = eventStatusOf(name, eventKey); return !!(s && s.status==="arrived"); }
+function isEventAbsent(name, eventKey){ const s = eventStatusOf(name, eventKey); return !!(s && s.status==="absent"); }
+function isEventBuddyArrived(name, eventKey){ const s = buddyEventStatusOf(name, eventKey); return !!(s && s.status==="arrived"); }
+function isEventBuddyAbsent(name, eventKey){ const s = buddyEventStatusOf(name, eventKey); return !!(s && s.status==="absent"); }
+
+function setChecked(name, taskKey, val){
+  if(fbEnabled){ fbDb.ref(`village/checkins/${weekKey}/${taskKey}/${encodeURIComponent(name)}`).set(val); }
+  else {
+    if(!checkinData[taskKey]) checkinData[taskKey]={};
+    checkinData[taskKey][name]=val;
+    if(!allWeeksCalls[weekKey]) allWeeksCalls[weekKey]={};
+    if(!allWeeksCalls[weekKey][taskKey]) allWeeksCalls[weekKey][taskKey]={};
+    allWeeksCalls[weekKey][taskKey][name]=val;
+    checkCelebrations();
+    refreshCurrentDash();
+  }
+}
+function setEventStatus(name, eventKey, status, reason){
+  const payload = {status, reason: reason||""};
+  if(fbEnabled){ fbDb.ref(`village/eventArrive/${eventKey}/${encodeURIComponent(name)}`).set(payload); }
+  else {
+    if(!eventArriveData[eventKey]) eventArriveData[eventKey]={};
+    eventArriveData[eventKey][name]=payload;
+    checkCelebrations();
+    refreshCurrentDash();
+  }
+}
+function setBuddyEventStatus(name, eventKey, status, reason){
+  const payload = {status, reason: reason||""};
+  if(fbEnabled){ fbDb.ref(`village/eventBuddyArrive/${eventKey}/${encodeURIComponent(name)}`).set(payload); }
+  else {
+    if(!eventBuddyArriveData[eventKey]) eventBuddyArriveData[eventKey]={};
+    eventBuddyArriveData[eventKey][name]=payload;
+    checkCelebrations();
+    refreshCurrentDash();
+  }
+}
+
+function decodeNode(raw){
+  const decoded = {};
+  Object.keys(raw||{}).forEach(taskKey=>{
+    decoded[taskKey] = {};
+    Object.keys(raw[taskKey]||{}).forEach(safeName=>{
+      decoded[taskKey][decodeURIComponent(safeName)] = raw[taskKey][safeName];
+    });
+  });
+  return decoded;
+}
+function decodeFlat(raw){
+  const decoded = {};
+  Object.keys(raw||{}).forEach(safeName=>{ decoded[decodeURIComponent(safeName)] = raw[safeName]; });
+  return decoded;
+}
+
+let syncStarted = false;
+function startCheckinSync(){
+  if(!fbEnabled || syncStarted) return;
+  syncStarted = true;
+  fbDb.ref(`village/checkins/${weekKey}`).on("value", snap=>{
+    checkinData = decodeNode(snap.val());
+    checkCelebrations();
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/checkins").on("value", snap=>{
+    const raw = snap.val() || {};
+    allWeeksCalls = {};
+    Object.keys(raw).forEach(wk=>{ allWeeksCalls[wk] = decodeNode(raw[wk]); });
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/eventArrive").on("value", snap=>{
+    eventArriveData = decodeNode(snap.val());
+    checkCelebrations();
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/eventBuddyArrive").on("value", snap=>{
+    eventBuddyArriveData = decodeNode(snap.val());
+    checkCelebrations();
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/monthlyReview/${monthKey}`).on("value", snap=>{
+    monthlyData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/monthlyReview").on("value", snap=>{
+    const raw = snap.val() || {};
+    allMonthsReview = {};
+    Object.keys(raw).forEach(mk=>{ allMonthsReview[mk] = decodeFlat(raw[mk]); });
+    refreshCurrentDash();
+  });
+}
+
+// ---------- 感情經驗值系統（跟搭檔小天使的每週通話） ----------
+const RELATIONSHIP_STAGES = [
+  {min:0,   name:"初次見面天使", emoji:"👋", desc:"初次見面！趕快和搭檔好好認識一下吧，他的興趣會是什麼呢？"},
+  {min:30,  name:"漸入佳境夥伴", emoji:"🌱", desc:"話題慢慢找到頻率了，你們的默契正在發芽！"},
+  {min:80,  name:"並肩戰友", emoji:"🤝", desc:"開始懂得互相打氣、分享甘苦，是彼此可靠的神隊友"},
+  {min:150, name:"預設麻吉搭檔", emoji:"😄", desc:"默契好到不用多解釋，對方就懂你的意思"},
+  {min:250, name:"革命夥伴", emoji:"🔥", desc:"一起走過的路數不清，感情堅若磐石"},
+  {min:400, name:"心靈雙胞胎", emoji:"👯", desc:"默契好到像失散多年的雙胞胎，太猛了！"},
+];
+// 夢幻連動判定：小夥伴（新生）跟小天使一起到場，或是只有小天使到場但當週跟搭檔也互相通話分享
+function dreamyLinkForEvent(name, eventKey){
+  const meArrived = isEventChecked(name, eventKey);
+  if(!meArrived) return false;
+  const buddyArrived = isEventBuddyArrived(name, eventKey);
+  if(buddyArrived) return true;
+  const mate = teammateOf(name);
+  if(!mate) return false;
+  const evWeekKey = weekKeyForDate(EVENT_DATES[eventKey]);
+  const wk = allWeeksCalls[evWeekKey] || {};
+  const callThatWeek = wk.call || {};
+  return !!(callThatWeek[name] && callThatWeek[mate]);
+}
+
+function pairCallXP(name, mate){
+  if(!mate) return 0;
+  let xp = 0;
+  // 每週通話／圓夢支持：兩人都做 +20，只有一人做 +10
+  Object.keys(allWeeksCalls).forEach(wk=>{
+    PARTNER_WEEKLY_TASKS.forEach(t=>{
+      const c = allWeeksCalls[wk] && allWeeksCalls[wk][t.key];
+      if(!c) return;
+      const meDid = !!c[name], mateDid = !!c[mate];
+      if(meDid && mateDid) xp += 20;
+      else if(meDid || mateDid) xp += 10;
+    });
+  });
+  // 每月關懷員約覆盤：誰做了都各自 +10
+  Object.keys(allMonthsReview).forEach(mk=>{
+    const r = allMonthsReview[mk] || {};
+    if(r[name]) xp += 10;
+    if(r[mate]) xp += 10;
+  });
+  // 課後課／同學會場次：自己或搭檔有出席都各自 +10，同時／通話連動再加碼 +15
+  EVENTS.forEach(ev=>{
+    if(isEventChecked(name, ev.key)) xp += 10;
+    if(isEventChecked(mate, ev.key)) xp += 10;
+    if(ev.buddyRequired && (dreamyLinkForEvent(name, ev.key) || dreamyLinkForEvent(mate, ev.key))){
+      xp += 15;
+    }
+  });
+  return xp;
+}
+function stageFor(xp){
+  let cur = RELATIONSHIP_STAGES[0];
+  RELATIONSHIP_STAGES.forEach(s=>{ if(xp>=s.min) cur=s; });
+  return cur;
+}
+function nextStageFor(xp){
+  return RELATIONSHIP_STAGES.find(s=>s.min>xp) || null;
+}
+function refreshCurrentDash(){
+  if(!myName) return;
+  const content = document.getElementById("dashContent");
+  if(LEADER_NAMES.includes(myName)) renderLeaderDash(myName, content);
+  else if(groupOf[myName]) renderMemberDash(myName, content);
+}
+
+// ---------- 小提醒吐司 + 夢幻連動特效 ----------
+let toastTimer = null;
+function showToast(msg){
+  let t = document.getElementById("toastEl");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toastEl";
+    t.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#345A4C;color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:600;z-index:60;opacity:0;transition:opacity .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.opacity = "0"; }, 2800);
+}
+function dreamyBurst(){
+  const emojis = ["🌈","✨","💫","🎉","👼","💕","⭐"];
+  for(let i=0;i<18;i++){
+    const p = document.createElement("div");
+    p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    p.style.cssText = "position:fixed;left:50%;top:35%;font-size:"+(16+Math.random()*16)+"px;z-index:65;pointer-events:none;transition:transform 1.1s cubic-bezier(.2,.8,.3,1), opacity 1.1s ease;transform:translate(-50%,-50%);";
+    document.body.appendChild(p);
+    const angle = Math.random()*Math.PI*2, dist = 100+Math.random()*160;
+    const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist;
+    requestAnimationFrame(()=>{
+      p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${Math.random()*360}deg)`;
+      p.style.opacity = "0";
+    });
+    setTimeout(()=>p.remove(), 1200);
+  }
+}
+function checkCelebrations(){
+  EVENTS.filter(ev=>ev.buddyRequired).forEach(ev=>{
+    Object.keys(byAngel).forEach(name=>{
+      const key = `${ev.key}|${name}`;
+      const linked = dreamyLinkForEvent(name, ev.key);
+      if(linked && !lastCelebrated[key]){
+        lastCelebrated[key] = true;
+        if(name===myName){
+          dreamyBurst();
+          const buddyPhysical = isEventBuddyArrived(name, ev.key);
+          const evLabel = ev.type + (ev.topic ? `「${ev.topic}」` : "") + `（${ev.date}）`;
+          showToast(buddyPhysical
+            ? `🌈 夢幻連動！你跟小夥伴同時抵達 ${evLabel} 了！搭檔感情經驗值 +15`
+            : `🌈 夢幻連動！雖然沒有同時到場，但你們通話分享了 ${evLabel} 的收穫，搭檔感情經驗值 +15`);
+        }
+      }
+      if(!linked) lastCelebrated[key] = false;
+    });
+  });
+}
+
+// ---------- 登入 / 註冊 ----------
+const nameInput = document.getElementById("nameInput");
+const pwInput = document.getElementById("pwInput");
+const enterBtn = document.getElementById("enterBtn");
+const loginErr = document.getElementById("loginErr");
+
+let myName = "";
+
+[nameInput, pwInput].forEach(el=>{
+  el.addEventListener("keydown", e=>{
+    if(e.key==="Enter" && !enterBtn.disabled) enterBtn.click();
+  });
+});
+enterBtn.addEventListener("click", async ()=>{
+  const name = nameInput.value.trim();
+  const pw = pwInput.value;
+  loginErr.textContent = "";
+  if(!name || !pw){ loginErr.textContent = "請輸入名字和密碼"; return; }
+
+  if(!fbEnabled){
+    myName = name;
+    localStorage.setItem("loginPwSet_"+name, "1");
+    showDashboard();
+    return;
+  }
+
+  enterBtn.disabled = true;
+  try{
+    const ref = fbDb.ref(`accounts/${encodeURIComponent(name)}`);
+    const snap = await ref.once("value");
+    const saved = snap.val();
+    if(saved === null){
+      await ref.set(pw);
+      myName = name;
+      showDashboard();
+    } else if(saved === pw){
+      myName = name;
+      showDashboard();
+    } else {
+      loginErr.textContent = "密碼不正確，請再確認一次";
+    }
+  }catch(e){
+    loginErr.textContent = "連線失敗，請稍後再試";
+  }
+  enterBtn.disabled = false;
+});
+
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  document.getElementById("dashScreen").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+  nameInput.value = ""; pwInput.value = "";
+  myName = "";
+});
+
+function showDashboard(){
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("dashScreen").style.display = "block";
+  document.getElementById("whoName").textContent = label(myName);
+
+  const isLeader = LEADER_NAMES.includes(myName);
+  const roleBadge = document.getElementById("roleBadge");
+  const content = document.getElementById("dashContent");
+
+  if(isLeader){
+    roleBadge.textContent = "大天使";
+    renderLeaderDash(myName, content);
+  } else if(groupOf[myName]){
+    roleBadge.textContent = "小天使";
+    renderMemberDash(myName, content);
+  } else {
+    roleBadge.textContent = "查無資料";
+    content.innerHTML = `<div class="card panel"><div class="empty-note">在名單裡找不到「${myName}」，請確認姓名是否跟名單上完全一致，或聯繫管理員協助確認。</div></div>`;
+  }
+  startCheckinSync();
+}
+
+function renderLeaderDash(name, content){
+  const g = name;
+  const col = GROUP_COLORS[g];
+  const members = groups[g];
+  const doneAnyCount = members.filter(m=> TASKS.some(t=>isChecked(m,t.key))).length;
+
+  content.innerHTML = `
+    <div class="card panel">
+      <div class="panel-title" style="color:${col.text};">🏘️ ${groupDisplayName(g)} 控制台</div>
+      <div class="panel-sub">你帶領 ${members.length} 位小天使，點名字可以看配對明細</div>
+      <div class="self-stat-row">
+        <div class="card self-stat"><div class="ss-num">${doneAnyCount}/${members.length}</div><div class="ss-label">📞 本週是否聚會</div></div>
+      </div>
+      <div id="memberList"></div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-title" style="color:${col.text};">💛 我自己的配對與打卡</div>
+      <div class="panel-sub">你身為大天使，也可能有自己帶的小夥伴，一樣可以在這裡打卡</div>
+    </div>
+    ${selfSectionHtml(name, "leaderSelf")}
+  `;
+  wireSelfSectionEvents(name, "leaderSelf");
+
+  const list = document.getElementById("memberList");
+  list.innerHTML = members.map(m=>{
+    const cs = byAngel[m] || [];
+    const mate = teammateOf(m);
+    const weeklyDone = isChecked(m, "call");
+    const monthDone = isMonthlyDone(m);
+    const eventCount = EVENTS.filter(ev=>isEventChecked(m,ev.key)).length;
+    const rows = cs.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
+    const mateCases = mate ? (byAngel[mate] || []) : [];
+    const mateRows = mateCases.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
+    const eventRows = EVENTS.map(ev=>{
+      const meDone = isEventChecked(m, ev.key);
+      const meAbsent = isEventAbsent(m, ev.key);
+      const meReason = (eventStatusOf(m, ev.key)||{}).reason || "";
+      let icon, text, color, reasonHtml = "";
+      if(!ev.buddyRequired){
+        if(meDone){ icon="✅"; text="已出席"; color=col.text; }
+        else if(meAbsent){ icon="❌"; text="未能抵達"; color="#C0435C"; reasonHtml = meReason?`<br><span style="font-weight:400;font-size:11px;">原因：${meReason.replace(/</g,"&lt;")}</span>`:""; }
+        else { icon="⬜"; text="尚未出席"; color="#9A9284"; }
+      } else {
+        const buddyDone = isEventBuddyArrived(m, ev.key);
+        const buddyAbsent = isEventBuddyAbsent(m, ev.key);
+        const buddyReason = (buddyEventStatusOf(m, ev.key)||{}).reason || "";
+        if(meDone && buddyDone){ icon="🌈"; text="雙方都到了"; color=col.text; }
+        else if(meDone && !buddyDone){ icon="👼"; text="只有小天使到，小夥伴沒到"; color="#B5732A"; }
+        else if(!meDone && buddyDone){ icon="🎒"; text="只有小夥伴到，小天使沒到"; color="#3A6FA0"; }
+        else { icon="⬜"; text="都未抵達"; color="#9A9284"; }
+        const reasons = [];
+        if(meAbsent) reasons.push(`小天使未到：${meReason||"（未填寫）"}`);
+        if(buddyAbsent) reasons.push(`小夥伴未到：${buddyReason||"（未填寫）"}`);
+        if(reasons.length) reasonHtml = `<br><span style="font-weight:400;font-size:11px;">${reasons.map(r=>r.replace(/</g,"&lt;")).join("；")}</span>`;
+      }
+      return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}</td></tr>`;
+    }).join("");
+    return `
+      <div class="member-card" data-member="${m}">
+        <div class="mc-head">
+          <span class="mc-name">${label(m)}</span>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="mc-badge">${cs.length} 位小夥伴</span>
+            <span class="chev">▶</span>
+          </span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:11px;">
+          <span style="padding:4px 10px;border-radius:999px;background:${weeklyDone?col.bg:'#EDEBE3'};color:${weeklyDone?col.text:'#9A9284'};font-weight:600;">📞 每週通話${weeklyDone?" ✓":" 未完成"}</span>
+          <span style="padding:4px 10px;border-radius:999px;background:${monthDone?col.bg:'#EDEBE3'};color:${monthDone?col.text:'#9A9284'};font-weight:600;">🗓️ 月覆盤${monthDone?" ✓":" 未完成"}</span>
+          <span class="event-detail-btn" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:${eventCount>0?col.bg:'#EDEBE3'};color:${eventCount>0?col.text:'#9A9284'};font-weight:600;text-decoration:underline;">🎉 場次出席 ${eventCount}/${EVENTS.length}</span>
+        </div>
+        <div class="mc-body">
+          <div style="font-weight:700;color:${col.text};margin-bottom:2px;">🎉 場次出席明細</div>
+          <table><tr><td><b>日期</b></td><td><b>場次</b></td><td><b>狀態</b></td></tr>${eventRows}</table>
+          <div style="font-weight:700;color:${col.text};margin:12px 0 2px;">💌 小夥伴配對明細</div>
+          ${cs.length ? `<table><tr><td><b>批次</b></td><td><b>小夥伴</b></td><td><b>介紹人</b></td><td><b>關懷員</b></td></tr>${rows}</table>` : "目前尚無小夥伴配對紀錄"}
+          <div style="font-weight:700;color:${col.text};margin:12px 0 2px;">💞 搭檔小天使明細${mate?`：${label(mate)}`:""}</div>
+          ${mate
+            ? (mateCases.length
+                ? `<table><tr><td><b>批次</b></td><td><b>小夥伴</b></td><td><b>介紹人</b></td><td><b>關懷員</b></td></tr>${mateRows}</table>`
+                : "搭檔目前尚無小夥伴配對紀錄")
+            : "目前尚無搭檔小天使"}
+        </div>
+      </div>
+    `;
+  }).join("");
+  list.querySelectorAll(".member-card").forEach(card=>{
+    card.querySelector(".mc-head").addEventListener("click", ()=> card.classList.toggle("open"));
+    const evBtn = card.querySelector(".event-detail-btn");
+    if(evBtn){
+      evBtn.addEventListener("click", ()=> card.classList.add("open"));
+    }
+  });
+}
+
+function selfSectionHtml(name, idPrefix){
+  const g = groupOf[name];
+  const col = GROUP_COLORS[g];
+  const cs = byAngel[name] || [];
+  const mate = teammateOf(name);
+  const rows = cs.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
+
+  const xp = pairCallXP(name, mate);
+  const stage = stageFor(xp);
+  const nextStage = nextStageFor(xp);
+  const pct = nextStage ? Math.round((xp-stage.min)/(nextStage.min-stage.min)*100) : 100;
+
+  const partnerBlock = mate ? `
+    <div class="card panel partner-card">
+      <div class="panel-title">💞 我的搭檔小天使</div>
+      <div class="partner-row">
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar">👼</div>
+          <div class="partner-name">${label(name)}</div>
+        </div>
+        <div class="partner-heart">💗</div>
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar">😇</div>
+          <div class="partner-name">${label(mate)}</div>
+        </div>
+      </div>
+      <div class="stage-box">
+        <div class="stage-title">${stage.emoji} ${stage.name}</div>
+        <div class="stage-desc">${stage.desc}</div>
+        <div class="progress-outer"><div class="progress-inner" style="width:${pct}%;"></div></div>
+        <div class="stage-sub">${nextStage ? `再累積 ${nextStage.min-xp} 經驗值，就會升級成「${nextStage.emoji} ${nextStage.name}」！` : "已經是最高等級的心靈雙胞胎了，太猛了吧！"}</div>
+        <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;">目前感情經驗值：${xp} 經驗值　（每週互相通話一次 +20 經驗值）</div>
+      </div>
+    </div>
+  ` : `
+    <div class="card panel partner-card">
+      <div class="panel-title">💞 我的搭檔小天使</div>
+      <div class="empty-note">目前還沒有配對搭檔，先自己顧好小夥伴吧，也很棒！</div>
+    </div>
+  `;
+
+  return `
+    ${partnerBlock}
+
+    <div class="card panel">
+      <div class="panel-title">💞 搭檔每週任務</div>
+      <div class="panel-sub">跟搭檔小天使一起做，累積感情經驗值</div>
+      <div id="${idPrefix}CallToggle"></div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-title">🗓️ ${monthLabel}　關懷員約覆盤</div>
+      <div class="panel-sub">每個月記得約關懷員聊聊，回顧一下這個月的陪伴狀況</div>
+      <div id="${idPrefix}MonthlyToggle"></div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-title">🎉 同學會／課後課 場次打卡</div>
+      <div class="panel-sub">記錄「你自己」跟「小夥伴（新生）」有沒有一起到場。兩個都到，會有夢幻連動特效喔！</div>
+      <div id="${idPrefix}ArrivalToggles"></div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-title">💌 我的小夥伴（新生／個案）</div>
+      <div class="panel-sub">你目前配對到的小夥伴</div>
+      ${cs.length ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+        <tr><td><b>批次</b></td><td><b>姓名</b></td><td><b>介紹人</b></td><td><b>關懷員</b></td></tr>
+        ${rows}
+      </table>` : `<div class="empty-note">目前還沒有配對到小夥伴</div>`}
+    </div>
+  `;
+}
+
+function wireSelfSectionEvents(name, idPrefix){
+  const g = groupOf[name];
+  const col = GROUP_COLORS[g];
+
+  // 搭檔每週任務（每週通話 + 圓夢支持，都累積感情經驗值）
+  const callBox = document.getElementById(`${idPrefix}CallToggle`);
+  if(callBox){
+    callBox.innerHTML = PARTNER_WEEKLY_TASKS.map(t=>{
+      const done = isChecked(name, t.key);
+      return `<div class="member-card" style="cursor:pointer;" data-calltoggle="${t.key}">
+        <div class="mc-head" style="cursor:pointer;">
+          <span class="mc-name">${t.emoji} ${t.label}</span>
+          <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！+10 經驗值":"點一下打卡"}</span>
+        </div>
+      </div>`;
+    }).join("");
+    callBox.querySelectorAll("[data-calltoggle]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const key = el.dataset.calltoggle;
+        const cur = isChecked(name, key);
+        setChecked(name, key, !cur);
+        if(!cur) showToast("✨ 完成！感情經驗值 +10（如果搭檔也做了，再加碼 +10）");
+      });
+    });
+  }
+
+  // 每月關懷員約覆盤（個人打卡，跟感情經驗值無關，是提醒性質）
+  const monthlyBox = document.getElementById(`${idPrefix}MonthlyToggle`);
+  if(monthlyBox){
+    const done = isMonthlyDone(name);
+    monthlyBox.innerHTML = `<div class="member-card" style="cursor:pointer;" data-monthlytoggle="1">
+      <div class="mc-head" style="cursor:pointer;">
+        <span class="mc-name">🗓️ 這個月已約關懷員覆盤</span>
+        <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 約過了":"點一下打卡"}</span>
+      </div>
+    </div>`;
+    monthlyBox.querySelector("[data-monthlytoggle]").addEventListener("click", ()=>{
+      const cur = isMonthlyDone(name);
+      setMonthlyDone(name, !cur);
+      if(!cur) showToast("🗓️ 太棒了，這個月的關懷員覆盤完成打卡！感情經驗值 +10");
+    });
+  }
+
+  // 場次打卡（自己 + 小夥伴，各自打卡，未能抵達可以填原因）
+  const arrivalBox = document.getElementById(`${idPrefix}ArrivalToggles`);
+  if(arrivalBox){
+    arrivalBox.innerHTML = EVENTS.map(ev=>{
+      const meArrived = isEventChecked(name, ev.key);
+      const meAbsent = isEventAbsent(name, ev.key);
+      const meReason = (eventStatusOf(name, ev.key)||{}).reason || "";
+      const buddyArrived = isEventBuddyArrived(name, ev.key);
+      const buddyAbsent = isEventBuddyAbsent(name, ev.key);
+      const buddyReason = (buddyEventStatusOf(name, ev.key)||{}).reason || "";
+      const linked = ev.buddyRequired ? dreamyLinkForEvent(name, ev.key) : false;
+      const rowHighlight = ev.buddyRequired ? (linked?"both-arrived":"") : (meArrived?"both-arrived":"");
+      return `
+        <div class="arrival-row ${rowHighlight}">
+          <div class="arrival-label">${ev.emoji} ${ev.date}　${ev.time}　${ev.type}${ev.topic?`「${ev.topic}」`:""}${linked ? "　🌈 夢幻連動！" : ""}</div>
+          ${ev.location ? `<div style="font-size:11px;color:var(--ink-soft);margin-bottom:8px;">📍 ${ev.location}</div>` : ""}
+          <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">${ev.buddyRequired?"👼 我：":"我："}</div>
+          <div class="arrival-btns">
+            <button class="mini-toggle ${meArrived?"on":""}" data-evstatus="${ev.key}" data-who="me" data-status="arrived">✅ ${ev.buddyRequired?"我到了":"我出席了"}</button>
+            <button class="mini-toggle ${meAbsent?"on-absent":""}" data-evstatus="${ev.key}" data-who="me" data-status="absent">❌ 我未能抵達</button>
+          </div>
+          ${meAbsent ? `<div class="reason-note">原因：${(meReason||"（未填寫）").replace(/</g,"&lt;")}</div>` : ""}
+          ${ev.buddyRequired ? `
+          <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin:8px 0 4px;">🎒 小夥伴：</div>
+          <div class="arrival-btns">
+            <button class="mini-toggle ${buddyArrived?"on":""}" data-evstatus="${ev.key}" data-who="buddy" data-status="arrived">✅ 小夥伴到了</button>
+            <button class="mini-toggle ${buddyAbsent?"on-absent":""}" data-evstatus="${ev.key}" data-who="buddy" data-status="absent">❌ 小夥伴未能抵達</button>
+          </div>
+          ${buddyAbsent ? `<div class="reason-note">原因：${(buddyReason||"（未填寫）").replace(/</g,"&lt;")}</div>` : ""}
+          ` : ""}
+          ${(ev.buddyRequired && !linked && meArrived) ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">💡 小提示：跟搭檔通個電話分享一下這場的收穫，也能觸發夢幻連動喔！</div>` : ""}
+        </div>
+      `;
+    }).join("");
+    arrivalBox.querySelectorAll("[data-evstatus]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const key = btn.dataset.evstatus;
+        const who = btn.dataset.who;
+        const status = btn.dataset.status;
+        if(status==="absent"){
+          const reason = window.prompt(who==="me" ? "請輸入你未能抵達的原因：" : "請輸入小夥伴未能抵達的原因：", "");
+          if(reason===null) return;
+          if(who==="me") setEventStatus(name, key, "absent", reason);
+          else setBuddyEventStatus(name, key, "absent", reason);
+        } else {
+          if(who==="me"){
+            setEventStatus(name, key, "arrived", "");
+            showToast("🎉 出席打卡完成！感情經驗值 +10");
+          } else {
+            setBuddyEventStatus(name, key, "arrived", "");
+          }
+        }
+      });
+    });
+  }
+}
+
+function renderMemberDash(name, content){
+  const g = groupOf[name];
+  const col = GROUP_COLORS[g];
+
+  content.innerHTML = selfSectionHtml(name, "my") + `
+    <div class="card panel">
+      <div class="panel-title" style="color:${col.text};">🏘️ 我的大天使小組</div>
+      <div class="panel-sub">${groupDisplayName(g)} 組的所有成員</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${groups[g].map(n=>`<span style="background:${col.bg};color:${col.text};padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:${n===name?"800":"600"};">${n===name?"👉 ":""}${label(n)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+  wireSelfSectionEvents(name, "my");
+}
+
+// 記住上次登入的名字，方便下次自動帶入（密碼仍需輸入）
+document.getElementById("nameSuggestions").innerHTML =
+  Object.keys(groupOf).map(n=>`<option value="${n}">`).join("");
+
+const savedName = localStorage.getItem("lastLoginName");
+if(savedName) nameInput.value = savedName;
+nameInput.addEventListener("change", ()=> localStorage.setItem("lastLoginName", nameInput.value.trim()));
+</script>
+</body>
+</html>
