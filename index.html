@@ -433,6 +433,17 @@
     </div>
   </div>
 
+  <div id="liveTrackPanel" class="leader-panel" style="margin-bottom:22px;">
+    <div id="liveTrackHead" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <div>
+        <div class="leader-panel-title"><span class="leader-emoji">📡</span> 即時打卡總覽</div>
+        <div class="leader-panel-hint" id="liveTrackHint">接收「小天使登入系統」大家回報的即時狀況</div>
+      </div>
+      <span class="chev" id="liveTrackChev" style="transform:rotate(90deg);">▶</span>
+    </div>
+    <div id="liveTrackBody" style="display:block;margin-top:14px;"></div>
+  </div>
+
   <div id="adminToggleRow" style="display:flex;justify-content:center;margin:4px 0 22px;">
     <button class="btn ghost" style="border:1px solid var(--sage);" id="adminToggleBtn">▾ 顯示管理工具（批次資料／名單管理／公告複製）</button>
   </div>
@@ -546,9 +557,9 @@
 <script>
 // ====== Firebase 設定區（照教學把這裡換成你自己的專案設定） ======
 const FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  databaseURL: "PASTE_YOUR_DATABASE_URL",
-  projectId: "PASTE_YOUR_PROJECT_ID",
+  apiKey: "AIzaSyDO2Bofv6z9rliKS_8u6YahP4iGcjA-US4",
+  databaseURL: "https://angel-smallbig-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "angel-smallbig",
 };
 let fbEnabled = false;
 let fbDb = null;
@@ -1903,6 +1914,129 @@ function renderLeaderDetail(){
 render();
 renderLeaderChips();
 renderLeaderDetail();
+
+// ================= 即時打卡總覽（接收「小天使登入系統」的即時回報） =================
+const LIVE_EVENTS = [
+  {key:"e0819", emoji:"👥", date:"8/19", type:"同學會"},
+  {key:"e0826", emoji:"📖", date:"8/26", type:"課後課"},
+  {key:"e0903", emoji:"📖", date:"9/3",  type:"課後課"},
+  {key:"e0908", emoji:"📖", date:"9/8",  type:"課後課"},
+  {key:"e0916", emoji:"📖", date:"9/16", type:"課後課"},
+  {key:"e0823", emoji:"🎓", date:"8/23", type:"培訓"},
+  {key:"e0917", emoji:"🎉", date:"9/17", type:"聚會"},
+];
+function liveWeekKeyNow(){
+  const diffDays = Math.floor((new Date() - WEEK_START) / 86400000);
+  return `w${Math.max(Math.floor(diffDays/7),0)+1}`;
+}
+const liveWeekKey = liveWeekKeyNow();
+const liveNow = new Date();
+const liveMonthKey = `${liveNow.getFullYear()}-${liveNow.getMonth()+1}`;
+
+let liveCallData = {};      // {name:true} 本週通話／圓夢支持
+let liveEventData = {};     // {eventKey:{name:{status,reason}}}
+let liveBuddyData = {};     // {eventKey:{name:{status,reason}}}
+let liveMonthlyData = {};   // {name:true}
+
+function decodeLiveFlat(raw){
+  const out = {};
+  Object.keys(raw||{}).forEach(k=>{ out[decodeURIComponent(k)] = raw[k]; });
+  return out;
+}
+function decodeLiveNode(raw){
+  const out = {};
+  Object.keys(raw||{}).forEach(k=>{ out[k] = decodeLiveFlat(raw[k]); });
+  return out;
+}
+
+function renderLiveTrackPanel(){
+  const box = document.getElementById("liveTrackBody");
+  if(!box) return;
+
+  if(!fbEnabled){
+    box.innerHTML = `<div style="color:var(--ink-soft);font-size:13px;">尚未設定 Firebase，接上之後就能看到「小天使登入系統」的即時回報。</div>`;
+    return;
+  }
+
+  const allNames = Object.keys(groupOf);
+  const weeklyDoneCount = allNames.filter(n=> liveCallData[n]).length;
+  const monthlyDoneCount = allNames.filter(n=> liveMonthlyData[n]).length;
+
+  let html = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <div style="flex:1;min-width:130px;background:#FBFAF6;border-radius:14px;padding:12px;text-align:center;">
+        <div style="font-size:22px;font-weight:900;color:var(--sage-deep);">${weeklyDoneCount}/${allNames.length}</div>
+        <div style="font-size:11px;color:var(--ink-soft);">📞 本週已通話／圓夢支持</div>
+      </div>
+      <div style="flex:1;min-width:130px;background:#FBFAF6;border-radius:14px;padding:12px;text-align:center;">
+        <div style="font-size:22px;font-weight:900;color:var(--sage-deep);">${monthlyDoneCount}/${allNames.length}</div>
+        <div style="font-size:11px;color:var(--ink-soft);">🗓️ 本月已約關懷員覆盤</div>
+      </div>
+    </div>
+  `;
+
+  Object.keys(groups).forEach(g=>{
+    const col = GROUP_COLORS[g];
+    html += `<div style="font-weight:700;color:${col.text};margin:14px 0 8px;">${groupDisplayName(g)}</div>`;
+    groups[g].forEach(name=>{
+      const weeklyDone = !!liveCallData[name];
+      const monthDone = !!liveMonthlyData[name];
+      let eventDone = 0;
+      const absentNotes = [];
+      LIVE_EVENTS.forEach(ev=>{
+        const st = (liveEventData[ev.key] && liveEventData[ev.key][name]) || null;
+        if(st && st.status==="arrived") eventDone++;
+        if(st && st.status==="absent") absentNotes.push(`${ev.date}${ev.type}：${st.reason||"未填原因"}`);
+        const bst = (liveBuddyData[ev.key] && liveBuddyData[ev.key][name]) || null;
+        if(bst && bst.status==="absent") absentNotes.push(`${ev.date}${ev.type}（小夥伴）：${bst.reason||"未填原因"}`);
+      });
+      html += `
+        <div style="background:#FBFAF6;border-radius:12px;padding:10px 14px;margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+            <span style="font-weight:700;font-size:13.5px;">${name}${akaOf[name]?`（${akaOf[name]}）`:""}</span>
+            <span style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;">
+              <span style="padding:3px 9px;border-radius:999px;background:${weeklyDone?col.bg:'#EDEBE3'};color:${weeklyDone?col.text:'#9A9284'};font-weight:600;">📞 ${weeklyDone?"已通話":"未完成"}</span>
+              <span style="padding:3px 9px;border-radius:999px;background:${monthDone?col.bg:'#EDEBE3'};color:${monthDone?col.text:'#9A9284'};font-weight:600;">🗓️ ${monthDone?"已覆盤":"未完成"}</span>
+              <span style="padding:3px 9px;border-radius:999px;background:${eventDone>0?col.bg:'#EDEBE3'};color:${eventDone>0?col.text:'#9A9284'};font-weight:600;">🎉 ${eventDone}/${LIVE_EVENTS.length} 場</span>
+            </span>
+          </div>
+          ${absentNotes.length ? `<div style="font-size:11px;color:#C0435C;margin-top:6px;">⚠️ ${absentNotes.join("；")}</div>` : ""}
+        </div>
+      `;
+    });
+  });
+
+  box.innerHTML = html;
+}
+
+if(fbEnabled){
+  fbDb.ref(`village/checkins/${liveWeekKey}/call`).on("value", snap=>{
+    liveCallData = decodeLiveFlat(snap.val());
+    renderLiveTrackPanel();
+  });
+  fbDb.ref("village/eventArrive").on("value", snap=>{
+    liveEventData = decodeLiveNode(snap.val());
+    renderLiveTrackPanel();
+  });
+  fbDb.ref("village/eventBuddyArrive").on("value", snap=>{
+    liveBuddyData = decodeLiveNode(snap.val());
+    renderLiveTrackPanel();
+  });
+  fbDb.ref(`village/monthlyReview/${liveMonthKey}`).on("value", snap=>{
+    liveMonthlyData = decodeLiveFlat(snap.val());
+    renderLiveTrackPanel();
+  });
+} else {
+  renderLiveTrackPanel();
+}
+
+document.getElementById("liveTrackHead").addEventListener("click", ()=>{
+  const body = document.getElementById("liveTrackBody");
+  const chev = document.getElementById("liveTrackChev");
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+});
 
 document.getElementById("leaderPanelHead").addEventListener("click", ()=>{
   const body = document.getElementById("leaderPanelBody");
