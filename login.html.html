@@ -108,9 +108,9 @@
   }
   .partner-avatar-wrap{ text-align:center; }
   .partner-avatar{
-    width:56px; height:56px; border-radius:50%; background:var(--sage-pale);
-    display:flex; align-items:center; justify-content:center; font-size:28px;
-    border:3px solid var(--amber); margin:0 auto 4px;
+    border-radius:50%; background:var(--sage-pale);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 4px; transition:all .4s ease;
     animation:partnerBob 2.6s ease-in-out infinite;
   }
   @keyframes partnerBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
@@ -269,18 +269,19 @@ const LEADER_NAMES = Object.keys(groups); // 大天使名字＝該組的 key
 // 「陪同類」任務：小天使自己到 + 小夥伴(新生)有沒有也到，兩個都到會有夢幻連動特效
 // 實際的同學會／課後課場次（有日期、主題、地點）
 const EVENTS = [
-  {key:"e0819", emoji:"👥", date:"8/19（三）", time:"19:00－22:00", type:"同學會", topic:"", location:"leat會議中心 1003", buddyRequired:true},
-  {key:"e0826", emoji:"📖", date:"8/26（三）", time:"19:00－22:00", type:"課後課", topic:"我喜歡／討厭自己的原因", location:"格來天漾 13F", buddyRequired:true},
-  {key:"e0903", emoji:"📖", date:"9/3（四）",  time:"19:00－22:00", type:"課後課", topic:"上平下緣傳愛道", location:"格來天漾 13F", buddyRequired:true},
-  {key:"e0908", emoji:"📖", date:"9/8（二）",  time:"19:00－22:00", type:"課後課", topic:"對好心沒好報的誤解", location:"格來天漾 13F", buddyRequired:true},
-  {key:"e0916", emoji:"📖", date:"9/16（三）", time:"19:00－22:00", type:"課後課", topic:"金錢的助流", location:"格來天漾 13F", buddyRequired:true},
-  {key:"e0823", emoji:"🎓", date:"8/23（日）", time:"13:00－18:00", type:"巨笑小天使培訓", topic:"", location:"", buddyRequired:false},
-  {key:"e0917", emoji:"🎉", date:"9/17（四）", time:"19:00－21:30", type:"小天使聚會", topic:"", location:"", buddyRequired:false},
+  {key:"e0819", emoji:"👥", date:"8/19（三）", time:"19:00－22:00", type:"同學會", topic:"", location:"leat會議中心 1003", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0826", emoji:"📖", date:"8/26（三）", time:"19:00－22:00", type:"課後課", topic:"我喜歡／討厭自己的原因", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0903", emoji:"📖", date:"9/3（四）",  time:"19:00－22:00", type:"課後課", topic:"上平下緣傳愛道", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0908", emoji:"📖", date:"9/8（二）",  time:"19:00－22:00", type:"課後課", topic:"對好心沒好報的誤解", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0916", emoji:"📖", date:"9/16（三）", time:"19:00－22:00", type:"課後課", topic:"金錢的助流", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0823", emoji:"🎓", date:"8/23（日）", time:"13:00－18:00", type:"巨笑小天使培訓", topic:"", location:"", buddyRequired:false, formLink:"https://forms.gle/SPJdxSbtFAX9AQJg6"},
+  {key:"e0917", emoji:"🎉", date:"9/17（四）", time:"19:00－21:30", type:"小天使聚會", topic:"", location:"", buddyRequired:false, regNote:"報名連結尚未公布"},
+  {key:"e0828", emoji:"🌟", date:"8/28（五）", time:"19:00－21:30", type:"迎新活動", topic:"", location:"典空間（臺北市中山區力行里南京東路三段28號B1，松江南京五號出口）", buddyRequired:false, formLink:"https://forms.gle/D61pXavpZAehSyaq7"},
 ];
 const EVENT_DATES = {
   e0819: new Date(2026,7,19), e0826: new Date(2026,7,26), e0903: new Date(2026,8,3),
   e0908: new Date(2026,8,8),  e0916: new Date(2026,8,16),
-  e0823: new Date(2026,7,23), e0917: new Date(2026,8,17),
+  e0823: new Date(2026,7,23), e0917: new Date(2026,8,17), e0828: new Date(2026,7,28),
 };
 function weekKeyForDate(d){
   const diffDays = Math.floor((d - WEEK_START) / 86400000);
@@ -324,6 +325,7 @@ function setMonthlyDone(name, val){
 let checkinData = {};      // {task:{name:true}}  本週：搭檔每週任務（通話／圓夢支持）
 let allWeeksCalls = {};    // {weekKey:{call:{name:true}, dream:{...}}}  歷史每週打卡，用來算感情經驗值
 let eventArriveData = {};      // {eventKey:{name:true}}  場次：小天使自己有沒有到
+let eventRegisteredData = {};  // {eventKey:{name:true}}  場次：是否已完成報名
 let eventBuddyArriveData = {}; // {eventKey:{name:true}}  場次：小夥伴(新生)有沒有到
 let lastCelebrated = {};   // 記錄哪些「同時抵達」已經慶祝過，避免同一次觸發兩次特效
 
@@ -334,6 +336,7 @@ function isEventChecked(name, eventKey){ const s = eventStatusOf(name, eventKey)
 function isEventAbsent(name, eventKey){ const s = eventStatusOf(name, eventKey); return !!(s && s.status==="absent"); }
 function isEventBuddyArrived(name, eventKey){ const s = buddyEventStatusOf(name, eventKey); return !!(s && s.status==="arrived"); }
 function isEventBuddyAbsent(name, eventKey){ const s = buddyEventStatusOf(name, eventKey); return !!(s && s.status==="absent"); }
+function isRegistered(name, eventKey){ return !!(eventRegisteredData[eventKey] && eventRegisteredData[eventKey][name]); }
 
 function setChecked(name, taskKey, val){
   if(fbEnabled){ fbDb.ref(`village/checkins/${weekKey}/${taskKey}/${encodeURIComponent(name)}`).set(val); }
@@ -364,6 +367,14 @@ function setBuddyEventStatus(name, eventKey, status, reason){
     if(!eventBuddyArriveData[eventKey]) eventBuddyArriveData[eventKey]={};
     eventBuddyArriveData[eventKey][name]=payload;
     checkCelebrations();
+    refreshCurrentDash();
+  }
+}
+function setRegistered(name, eventKey, val){
+  if(fbEnabled){ fbDb.ref(`village/eventRegistered/${eventKey}/${encodeURIComponent(name)}`).set(val); }
+  else {
+    if(!eventRegisteredData[eventKey]) eventRegisteredData[eventKey]={};
+    eventRegisteredData[eventKey][name]=val;
     refreshCurrentDash();
   }
 }
@@ -409,6 +420,10 @@ function startCheckinSync(){
     checkCelebrations();
     refreshCurrentDash();
   });
+  fbDb.ref("village/eventRegistered").on("value", snap=>{
+    eventRegisteredData = decodeNode(snap.val());
+    refreshCurrentDash();
+  });
   fbDb.ref(`village/monthlyReview/${monthKey}`).on("value", snap=>{
     monthlyData = decodeFlat(snap.val());
     refreshCurrentDash();
@@ -423,12 +438,12 @@ function startCheckinSync(){
 
 // ---------- 感情經驗值系統（跟搭檔小天使的每週通話） ----------
 const RELATIONSHIP_STAGES = [
-  {min:0,   name:"初次見面天使", emoji:"👋", desc:"初次見面！趕快和搭檔好好認識一下吧，他的興趣會是什麼呢？"},
-  {min:30,  name:"漸入佳境夥伴", emoji:"🌱", desc:"話題慢慢找到頻率了，你們的默契正在發芽！"},
-  {min:80,  name:"並肩戰友", emoji:"🤝", desc:"開始懂得互相打氣、分享甘苦，是彼此可靠的神隊友"},
-  {min:150, name:"預設麻吉搭檔", emoji:"😄", desc:"默契好到不用多解釋，對方就懂你的意思"},
-  {min:250, name:"革命夥伴", emoji:"🔥", desc:"一起走過的路數不清，感情堅若磐石"},
-  {min:400, name:"心靈雙胞胎", emoji:"👯", desc:"默契好到像失散多年的雙胞胎，太猛了！"},
+  {min:0,   name:"初次見面天使", emoji:"👋", desc:"初次見面！趕快和搭檔好好認識一下吧，他的興趣會是什麼呢？", avatar:"🙂", frame:"#C7CDC8", glow:"none", deco:""},
+  {min:30,  name:"漸入佳境夥伴", emoji:"🌱", desc:"話題慢慢找到頻率了，你們的默契正在發芽！", avatar:"😊", frame:"#8FBFA6", glow:"0 0 10px rgba(143,191,166,0.5)", deco:"🌱"},
+  {min:80,  name:"並肩戰友", emoji:"🤝", desc:"開始懂得互相打氣、分享甘苦，是彼此可靠的神隊友", avatar:"😄", frame:"#5B9BD5", glow:"0 0 12px rgba(91,155,213,0.55)", deco:"🤝"},
+  {min:150, name:"預設麻吉搭檔", emoji:"😄", desc:"默契好到不用多解釋，對方就懂你的意思", avatar:"🥳", frame:"#E0A248", glow:"0 0 14px rgba(224,162,72,0.6)", deco:"⭐"},
+  {min:250, name:"革命夥伴", emoji:"🔥", desc:"一起走過的路數不清，感情堅若磐石", avatar:"🤩", frame:"#E8794F", glow:"0 0 18px rgba(232,121,79,0.65)", deco:"🔥"},
+  {min:400, name:"心靈雙胞胎", emoji:"👯", desc:"默契好到像失散多年的雙胞胎，太猛了！", avatar:"✨", frame:"gold-rainbow", glow:"0 0 22px rgba(224,162,72,0.75)", deco:"👑"},
 ];
 // 夢幻連動判定：小夥伴（新生）跟小天使一起到場，或是只有小天使到場但當週跟搭檔也互相通話分享
 function dreamyLinkForEvent(name, eventKey){
@@ -531,8 +546,8 @@ function checkCelebrations(){
           const buddyPhysical = isEventBuddyArrived(name, ev.key);
           const evLabel = ev.type + (ev.topic ? `「${ev.topic}」` : "") + `（${ev.date}）`;
           showToast(buddyPhysical
-            ? `🌈 夢幻連動！你跟小夥伴同時抵達 ${evLabel} 了！搭檔感情經驗值 +15`
-            : `🌈 夢幻連動！雖然沒有同時到場，但你們通話分享了 ${evLabel} 的收穫，搭檔感情經驗值 +15`);
+            ? `🌈 夢幻連動！你跟小夥伴同時抵達 ${evLabel} 了！搭檔愛心 +15`
+            : `🌈 夢幻連動！雖然沒有同時到場，但你們通話分享了 ${evLabel} 的收穫，搭檔愛心 +15`);
         }
       }
       if(!linked) lastCelebrated[key] = false;
@@ -672,7 +687,8 @@ function renderLeaderDash(name, content){
         if(buddyAbsent) reasons.push(`小夥伴未到：${buddyReason||"（未填寫）"}`);
         if(reasons.length) reasonHtml = `<br><span style="font-weight:400;font-size:11px;">${reasons.map(r=>r.replace(/</g,"&lt;")).join("；")}</span>`;
       }
-      return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}</td></tr>`;
+      const regTag = isRegistered(m, ev.key) ? `<br><span style="font-weight:400;font-size:11px;color:var(--sage-deep);">📝 已報名</span>` : `<br><span style="font-weight:400;font-size:11px;color:#9A9284;">📝 尚未報名</span>`;
+      return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}${regTag}</td></tr>`;
     }).join("");
     return `
       <div class="member-card" data-member="${m}">
@@ -724,26 +740,44 @@ function selfSectionHtml(name, idPrefix){
   const nextStage = nextStageFor(xp);
   const pct = nextStage ? Math.round((xp-stage.min)/(nextStage.min-stage.min)*100) : 100;
 
+  const stageIdx = RELATIONSHIP_STAGES.indexOf(stage);
+  const avatarSize = 56 + stageIdx*6;
+  const frameStyle = stage.frame==="gold-rainbow"
+    ? `background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#E0A248,#E88F5C,#5B9BD5,#8FBFA6) border-box; border:4px solid transparent;`
+    : `border:4px solid ${stage.frame};`;
+  const heartTotal = 10;
+  const heartFilled = Math.round((pct/100)*heartTotal);
+  const heartSize = 13 + stageIdx*2;
+  const heartsHtml = Array.from({length:heartTotal}).map((_,i)=>
+    `<span style="font-size:${heartSize}px;">${i<heartFilled ? "❤️" : "🤍"}</span>`
+  ).join("");
+
   const partnerBlock = mate ? `
     <div class="card panel partner-card">
       <div class="panel-title">💞 我的搭檔小天使</div>
       <div class="partner-row">
         <div class="partner-avatar-wrap">
-          <div class="partner-avatar">👼</div>
+          <div class="partner-avatar" style="width:${avatarSize}px;height:${avatarSize}px;font-size:${avatarSize*0.5}px;${frameStyle}box-shadow:${stage.glow};position:relative;">
+            ${stage.avatar}
+            ${stage.deco?`<span style="position:absolute;top:-6px;right:-6px;font-size:16px;">${stage.deco}</span>`:""}
+          </div>
           <div class="partner-name">${label(name)}</div>
         </div>
         <div class="partner-heart">💗</div>
         <div class="partner-avatar-wrap">
-          <div class="partner-avatar">😇</div>
+          <div class="partner-avatar" style="width:${avatarSize}px;height:${avatarSize}px;font-size:${avatarSize*0.5}px;${frameStyle}box-shadow:${stage.glow};position:relative;">
+            ${stage.avatar}
+            ${stage.deco?`<span style="position:absolute;top:-6px;right:-6px;font-size:16px;">${stage.deco}</span>`:""}
+          </div>
           <div class="partner-name">${label(mate)}</div>
         </div>
       </div>
       <div class="stage-box">
         <div class="stage-title">${stage.emoji} ${stage.name}</div>
         <div class="stage-desc">${stage.desc}</div>
-        <div class="progress-outer"><div class="progress-inner" style="width:${pct}%;"></div></div>
-        <div class="stage-sub">${nextStage ? `再累積 ${nextStage.min-xp} 經驗值，就會升級成「${nextStage.emoji} ${nextStage.name}」！` : "已經是最高等級的心靈雙胞胎了，太猛了吧！"}</div>
-        <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;">目前感情經驗值：${xp} 經驗值　（每週互相通話一次 +20 經驗值）</div>
+        <div style="text-align:center;line-height:1.4;margin:8px 0;">${heartsHtml}</div>
+        <div class="stage-sub" style="text-align:center;">${nextStage ? `再累積 ${nextStage.min-xp} 顆愛心，就會升級成「${nextStage.emoji} ${nextStage.name}」！` : "已經是最高等級的心靈雙胞胎了，太猛了吧！"}</div>
+        <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;text-align:center;">💕 已累積 ${xp} 顆愛心　（每週互相通話一次 +20 顆愛心）</div>
       </div>
     </div>
   ` : `
@@ -758,7 +792,7 @@ function selfSectionHtml(name, idPrefix){
 
     <div class="card panel">
       <div class="panel-title">💞 搭檔每週任務</div>
-      <div class="panel-sub">跟搭檔小天使一起做，累積感情經驗值</div>
+      <div class="panel-sub">跟搭檔小天使一起做，累積愛心</div>
       <div id="${idPrefix}CallToggle"></div>
     </div>
 
@@ -797,7 +831,7 @@ function wireSelfSectionEvents(name, idPrefix){
       return `<div class="member-card" style="cursor:pointer;" data-calltoggle="${t.key}">
         <div class="mc-head" style="cursor:pointer;">
           <span class="mc-name">${t.emoji} ${t.label}</span>
-          <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！+10 經驗值":"點一下打卡"}</span>
+          <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！+10 顆愛心":"點一下打卡"}</span>
         </div>
       </div>`;
     }).join("");
@@ -806,7 +840,7 @@ function wireSelfSectionEvents(name, idPrefix){
         const key = el.dataset.calltoggle;
         const cur = isChecked(name, key);
         setChecked(name, key, !cur);
-        if(!cur) showToast("✨ 完成！感情經驗值 +10（如果搭檔也做了，再加碼 +10）");
+        if(!cur) showToast("✨ 完成！愛心 +10（如果搭檔也做了，再加碼 +10）");
       });
     });
   }
@@ -824,7 +858,7 @@ function wireSelfSectionEvents(name, idPrefix){
     monthlyBox.querySelector("[data-monthlytoggle]").addEventListener("click", ()=>{
       const cur = isMonthlyDone(name);
       setMonthlyDone(name, !cur);
-      if(!cur) showToast("🗓️ 太棒了，這個月的關懷員覆盤完成打卡！感情經驗值 +10");
+      if(!cur) showToast("🗓️ 太棒了，這個月的關懷員覆盤完成打卡！愛心 +10");
     });
   }
 
@@ -840,10 +874,20 @@ function wireSelfSectionEvents(name, idPrefix){
       const buddyReason = (buddyEventStatusOf(name, ev.key)||{}).reason || "";
       const linked = ev.buddyRequired ? dreamyLinkForEvent(name, ev.key) : false;
       const rowHighlight = ev.buddyRequired ? (linked?"both-arrived":"") : (meArrived?"both-arrived":"");
+      const registered = isRegistered(name, ev.key);
+      const regBlock = ev.formLink
+        ? `<div style="margin-bottom:8px;">
+            <a href="${ev.formLink}" target="_blank" rel="noopener" style="display:inline-block;font-size:12px;color:var(--sage-deep);font-weight:700;text-decoration:underline;margin-right:10px;">📝 前往報名表單</a>
+            <button class="mini-toggle" style="min-width:90px;width:auto;display:inline-block;padding:5px 12px;${registered?"background:var(--sage);border-color:var(--sage);color:#fff;":""}" data-regtoggle="${ev.key}">${registered?"✅ 已報名":"點一下標記已報名"}</button>
+          </div>`
+        : ev.regNote
+          ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;">📝 ${ev.regNote}${ev.regNote!=="報名連結尚未公布" ? `　<button class="mini-toggle" style="min-width:90px;width:auto;display:inline-block;padding:5px 12px;${registered?"background:var(--sage);border-color:var(--sage);color:#fff;":""}" data-regtoggle="${ev.key}">${registered?"✅ 已報名":"點一下標記已報名"}</button>` : ""}</div>`
+          : "";
       return `
         <div class="arrival-row ${rowHighlight}">
           <div class="arrival-label">${ev.emoji} ${ev.date}　${ev.time}　${ev.type}${ev.topic?`「${ev.topic}」`:""}${linked ? "　🌈 夢幻連動！" : ""}</div>
           ${ev.location ? `<div style="font-size:11px;color:var(--ink-soft);margin-bottom:8px;">📍 ${ev.location}</div>` : ""}
+          ${regBlock}
           <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">${ev.buddyRequired?"👼 我：":"我："}</div>
           <div class="arrival-btns">
             <button class="mini-toggle ${meArrived?"on":""}" data-evstatus="${ev.key}" data-who="me" data-status="arrived">✅ ${ev.buddyRequired?"我到了":"我出席了"}</button>
@@ -875,11 +919,19 @@ function wireSelfSectionEvents(name, idPrefix){
         } else {
           if(who==="me"){
             setEventStatus(name, key, "arrived", "");
-            showToast("🎉 出席打卡完成！感情經驗值 +10");
+            showToast("🎉 出席打卡完成！愛心 +10");
           } else {
             setBuddyEventStatus(name, key, "arrived", "");
           }
         }
+      });
+    });
+    arrivalBox.querySelectorAll("[data-regtoggle]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const key = btn.dataset.regtoggle;
+        const cur = isRegistered(name, key);
+        setRegistered(name, key, !cur);
+        if(!cur) showToast("📝 已標記為報名完成！");
       });
     });
   }
