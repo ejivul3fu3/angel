@@ -659,14 +659,20 @@ const SOLO_STAGES = [
   {min:250, name:"堅持不懈的天使", emoji:"🔥", desc:"一路走來累積的付出，數都數不清", avatar:"🤩", frame:"#E8794F", glow:"0 0 18px rgba(232,121,79,0.65)", deco:"🔥"},
   {min:400, name:"傳奇守護者", emoji:"✨", desc:"你的用心已經影響了好多人，太猛了！", avatar:"✨", frame:"gold-rainbow", glow:"0 0 22px rgba(224,162,72,0.75)", deco:"👑"},
 ];
-function soloScore(name){
+function soloCareScore(name){
   let pts = 0;
   Object.keys(allWeeksCalls).forEach(wk=>{
-    if(allWeeksCalls[wk].studentCall && allWeeksCalls[wk].studentCall[name]) pts += 10;
-    if(allWeeksCalls[wk].call && allWeeksCalls[wk].call[name]) pts += 5;
+    if(allWeeksCalls[wk].call && allWeeksCalls[wk].call[name]) pts += 10;
   });
   Object.keys(allMonthsReview).forEach(mk=>{ if(allMonthsReview[mk][name]) pts += 10; });
   Object.keys(allMonthsDream).forEach(mk=>{ if(allMonthsDream[mk][name]) pts += 10; });
+  return pts;
+}
+function studentBondScore(name){
+  let pts = 0;
+  Object.keys(allWeeksCalls).forEach(wk=>{
+    if(allWeeksCalls[wk].studentCall && allWeeksCalls[wk].studentCall[name]) pts += 10;
+  });
   EVENTS.forEach(ev=>{ if(isEventChecked(name, ev.key)) pts += 10; });
   return pts;
 }
@@ -1169,7 +1175,7 @@ function selfSectionHtml(name, idPrefix){
   const mate = teammateOf(name);
   const rows = cs.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
 
-  const xp = mate ? pairCallXP(name, mate) : soloScore(name);
+  const xp = mate ? pairCallXP(name, mate) : soloCareScore(name);
   const stageSet = mate ? RELATIONSHIP_STAGES : SOLO_STAGES;
   const stage = stageFor(xp, stageSet);
   const nextStage = nextStageFor(xp, stageSet);
@@ -1226,6 +1232,11 @@ function selfSectionHtml(name, idPrefix){
           </div>
           <div class="partner-name">${label(name)}</div>
         </div>
+        <div class="partner-heart">💗</div>
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar" style="width:${avatarSize}px;height:${avatarSize}px;font-size:${avatarSize*0.5}px;border:4px dashed var(--line);background:#F0EEE7;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;">無</div>
+          <div class="partner-name">尚無搭檔</div>
+        </div>
       </div>
       <div class="stage-box">
         <div class="stage-title">${stage.emoji} ${stage.name}</div>
@@ -1233,6 +1244,51 @@ function selfSectionHtml(name, idPrefix){
         <div style="text-align:center;line-height:1.4;margin:8px 0;">${heartsHtml}</div>
         <div class="stage-sub" style="text-align:center;">${nextStage ? `再累積 ${nextStage.min-xp} 顆愛心，就會升級成「${nextStage.emoji} ${nextStage.name}」！` : "已經是最高等級的傳奇守護者了，太猛了吧！"}</div>
         <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;text-align:center;">💕 已累積 ${xp} 顆愛心　（目前沒有搭檔，這是依你自己的陪伴累積計算）</div>
+      </div>
+    </div>
+  `;
+
+  // 陪伴新生的成長圖（跟一階新生之間的感情，用通話跟場次出席累積）
+  const studentXp = studentBondScore(name);
+  const studentStage = stageFor(studentXp, SOLO_STAGES);
+  const studentNextStage = nextStageFor(studentXp, SOLO_STAGES);
+  const studentPct = studentNextStage ? Math.round((studentXp-studentStage.min)/(studentNextStage.min-studentStage.min)*100) : 100;
+  const studentStageIdx = SOLO_STAGES.indexOf(studentStage);
+  const studentAvatarSize = 56 + studentStageIdx*6;
+  const studentFrameStyle = studentStage.frame==="gold-rainbow"
+    ? `background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#E0A248,#E88F5C,#5B9BD5,#8FBFA6) border-box; border:4px solid transparent;`
+    : `border:4px solid ${studentStage.frame};`;
+  const studentHeartFilled = Math.round((studentPct/100)*10);
+  const studentHeartSize = 13 + studentStageIdx*2;
+  const studentHeartsHtml = Array.from({length:10}).map((_,i)=>
+    `<span style="font-size:${studentHeartSize}px;">${i<studentHeartFilled ? "❤️" : "🤍"}</span>`
+  ).join("");
+  const firstTierCases = cs.filter(c=>c.batch&&c.batch.startsWith("1-"));
+  const hasFirstTierStudent = firstTierCases.length > 0;
+  const studentNamesForGrowth = firstTierCases.map(c=>c.name).join("、") || "無";
+  const studentGrowthBlock = `
+    <div class="card panel partner-card">
+      <div class="panel-title">🌟 我和新生的陪伴成長</div>
+      <div class="partner-row">
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar" style="width:${studentAvatarSize}px;height:${studentAvatarSize}px;font-size:${studentAvatarSize*0.5}px;${studentFrameStyle}box-shadow:${studentStage.glow};position:relative;">
+            ${studentStage.avatar}
+            ${studentStage.deco?`<span style="position:absolute;top:-6px;right:-6px;font-size:16px;">${studentStage.deco}</span>`:""}
+          </div>
+          <div class="partner-name">${label(name)}</div>
+        </div>
+        <div class="partner-heart">💗</div>
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar" style="width:${studentAvatarSize}px;height:${studentAvatarSize}px;font-size:${studentAvatarSize*0.5}px;border:4px solid ${GROUP_COLORS[g].text};background:${GROUP_COLORS[g].bg};display:flex;align-items:center;justify-content:center;">👶</div>
+          <div class="partner-name">${studentNamesForGrowth}</div>
+        </div>
+      </div>
+      <div class="stage-box">
+        <div class="stage-title">${studentStage.emoji} ${studentStage.name}</div>
+        <div class="stage-desc">${studentStage.desc}</div>
+        <div style="text-align:center;line-height:1.4;margin:8px 0;">${studentHeartsHtml}</div>
+        <div class="stage-sub" style="text-align:center;">${studentNextStage ? `再累積 ${studentNextStage.min-studentXp} 顆愛心，就會升級成「${studentNextStage.emoji} ${studentNextStage.name}」！` : "已經是最高等級的傳奇守護者了，太猛了吧！"}</div>
+        <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;text-align:center;">💕 已累積 ${studentXp} 顆愛心　（每週通話 +10，出席場次每場 +10）</div>
       </div>
     </div>
   `;
@@ -1263,9 +1319,13 @@ function selfSectionHtml(name, idPrefix){
     </div>
 
     <div id="${idPrefix}TabStudent" style="display:${activeCareTab==="student"?"block":"none"};">
+      ${hasFirstTierStudent ? `
+      ${studentGrowthBlock}
+
       <div class="card panel">
         <div class="panel-title">📱 陪伴新生每週通話</div>
         <div class="panel-sub">除了大場次，也記得每週跟你的小夥伴（新生）保持聯絡</div>
+        <div style="font-size:13px;font-weight:700;color:${col.text};margin-bottom:10px;">👶 你的新生：${studentNamesForGrowth}</div>
         <div style="font-size:12px;font-weight:700;color:${col.text};background:${col.bg};display:inline-block;padding:4px 12px;border-radius:999px;margin-bottom:10px;">🗓️ ${weekLabel}（週一至週日）</div>
         <div id="${idPrefix}StudentCallToggle"></div>
       </div>
@@ -1284,6 +1344,12 @@ function selfSectionHtml(name, idPrefix){
         ${rows}
       </table>` : `<div class="empty-note">目前還沒有配對到小夥伴</div>`}
       </div>
+      ` : `
+      <div class="card panel">
+        <div class="panel-title">👶 陪伴一階新生</div>
+        <div class="empty-note" style="font-size:20px;font-weight:800;color:var(--ink-soft);">無</div>
+      </div>
+      `}
     </div>
   `;
 }
@@ -1344,9 +1410,10 @@ function wireSelfSectionEvents(name, idPrefix){
     const t = STUDENT_WEEKLY_TASK;
     const done = isChecked(name, t.key);
     const time = studentCallTimeData[name] || "";
+    const studentNames = (byAngel[name]||[]).filter(c=>c.batch&&c.batch.startsWith("1-")).map(c=>c.name).join("、") || "尚無配對";
     studentCallBox.innerHTML = `<div class="member-card" style="cursor:pointer;" data-studentcalltoggle="1">
       <div class="mc-head" style="cursor:pointer;">
-        <span class="mc-name">${t.emoji} ${t.label}</span>
+        <span class="mc-name">${t.emoji} 跟「${studentNames}」通話</span>
         <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！":"點一下打卡"}</span>
       </div>
       ${done && time ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">🕐 通話時間：${time.replace(/</g,"&lt;")}</div>` : ""}
