@@ -442,6 +442,9 @@
       <span class="chev" id="liveTrackChev" style="transform:rotate(90deg);">▶</span>
     </div>
     <div id="liveTrackBody" style="display:block;margin-top:14px;"></div>
+    <div style="margin-top:14px;">
+      <button class="btn ghost" style="border:1px solid var(--sage);width:100%;" id="copyLiveSummaryBtn">📋 一鍵複製總表（每個人這幾個月的整體狀況）</button>
+    </div>
   </div>
 
   <div id="adminToggleRow" style="display:flex;justify-content:center;margin:4px 0 22px;">
@@ -1918,11 +1921,12 @@ renderLeaderDetail();
 // ================= 即時打卡總覽（接收「小天使登入系統」的即時回報） =================
 const LIVE_EVENTS = [
   {key:"e0819", emoji:"👥", date:"8/19", type:"同學會"},
+  {key:"e0823", emoji:"🎓", date:"8/23", type:"培訓"},
   {key:"e0826", emoji:"📖", date:"8/26", type:"課後課"},
+  {key:"e0828", emoji:"🌟", date:"8/28", type:"迎新活動"},
   {key:"e0903", emoji:"📖", date:"9/3",  type:"課後課"},
   {key:"e0908", emoji:"📖", date:"9/8",  type:"課後課"},
   {key:"e0916", emoji:"📖", date:"9/16", type:"課後課"},
-  {key:"e0823", emoji:"🎓", date:"8/23", type:"培訓"},
   {key:"e0917", emoji:"🎉", date:"9/17", type:"聚會"},
 ];
 function liveWeekKeyNow(){
@@ -1933,10 +1937,14 @@ const liveWeekKey = liveWeekKeyNow();
 const liveNow = new Date();
 const liveMonthKey = `${liveNow.getFullYear()}-${liveNow.getMonth()+1}`;
 
-let liveCallData = {};      // {name:true} 本週通話／圓夢支持
+let liveCallData = {};      // {name:true} 本週通話
 let liveEventData = {};     // {eventKey:{name:{status,reason}}}
 let liveBuddyData = {};     // {eventKey:{name:{status,reason}}}
-let liveMonthlyData = {};   // {name:true}
+let liveMonthlyData = {};   // {name:true} 本月關懷員覆盤
+let liveDreamData = {};     // {name:true} 本月圓夢支持
+let liveAllWeeksCheckins = {};  // {weekKey:{task:{name:val}}} 歷史所有週次打卡，用於總表
+let liveAllMonthsReview = {};   // {monthKey:{name:true}} 歷史所有月覆盤
+let liveAllMonthsDream = {};    // {monthKey:{name:true}} 歷史所有月圓夢支持
 
 function decodeLiveFlat(raw){
   const out = {};
@@ -1949,6 +1957,44 @@ function decodeLiveNode(raw){
   return out;
 }
 
+function generateLiveSummaryReport(){
+  const allNames = Object.keys(groupOf);
+  const lines = [`小天使整體運作總表　（複製時間：${new Date().toLocaleDateString("zh-TW")}）`, ""];
+
+  Object.keys(groups).forEach(g=>{
+    lines.push(`【${groupDisplayName(g)}】`);
+    groups[g].forEach(name=>{
+      let callWeeks = 0, totalWeeks = 0;
+      Object.keys(liveAllWeeksCheckins).forEach(wk=>{
+        totalWeeks++;
+        if(liveAllWeeksCheckins[wk].call && liveAllWeeksCheckins[wk].call[name]) callWeeks++;
+      });
+      let dreamMonths = 0, reviewMonths = 0, totalMonths = 0;
+      const monthKeys = new Set([...Object.keys(liveAllMonthsDream), ...Object.keys(liveAllMonthsReview)]);
+      totalMonths = monthKeys.size;
+      Object.keys(liveAllMonthsDream).forEach(mk=>{ if(liveAllMonthsDream[mk][name]) dreamMonths++; });
+      Object.keys(liveAllMonthsReview).forEach(mk=>{ if(liveAllMonthsReview[mk][name]) reviewMonths++; });
+
+      let arrived = 0, absent = 0;
+      const absentNotes = [];
+      LIVE_EVENTS.forEach(ev=>{
+        const st = (liveEventData[ev.key] && liveEventData[ev.key][name]) || null;
+        if(st && st.status==="arrived") arrived++;
+        if(st && st.status==="absent"){ absent++; absentNotes.push(`${ev.date}(${st.reason||"未填原因"})`); }
+      });
+      const rate = LIVE_EVENTS.length ? Math.round(arrived/LIVE_EVENTS.length*100) : 0;
+
+      lines.push(`・${name}${akaOf[name]?`（${akaOf[name]}）`:""}`);
+      lines.push(`　📞 每週通話：${callWeeks}/${totalWeeks} 週`);
+      lines.push(`　⭐ 圓夢支持：${dreamMonths}/${totalMonths} 月　🗓️ 關懷員覆盤：${reviewMonths}/${totalMonths} 月`);
+      lines.push(`　🎉 場次出席率：${arrived}/${LIVE_EVENTS.length}（${rate}%）${absent?`　❌未到 ${absent} 場`:""}`);
+      if(absentNotes.length) lines.push(`　⚠️ 未到原因：${absentNotes.join("；")}`);
+    });
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+
 function renderLiveTrackPanel(){
   const box = document.getElementById("liveTrackBody");
   if(!box) return;
@@ -1959,27 +2005,15 @@ function renderLiveTrackPanel(){
   }
 
   const allNames = Object.keys(groupOf);
-  const weeklyDoneCount = allNames.filter(n=> liveCallData[n]).length;
-  const monthlyDoneCount = allNames.filter(n=> liveMonthlyData[n]).length;
 
-  let html = `
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-      <div style="flex:1;min-width:130px;background:#FBFAF6;border-radius:14px;padding:12px;text-align:center;">
-        <div style="font-size:22px;font-weight:900;color:var(--sage-deep);">${weeklyDoneCount}/${allNames.length}</div>
-        <div style="font-size:11px;color:var(--ink-soft);">📞 本週已通話／圓夢支持</div>
-      </div>
-      <div style="flex:1;min-width:130px;background:#FBFAF6;border-radius:14px;padding:12px;text-align:center;">
-        <div style="font-size:22px;font-weight:900;color:var(--sage-deep);">${monthlyDoneCount}/${allNames.length}</div>
-        <div style="font-size:11px;color:var(--ink-soft);">🗓️ 本月已約關懷員覆盤</div>
-      </div>
-    </div>
-  `;
+  let html = "";
 
   Object.keys(groups).forEach(g=>{
     const col = GROUP_COLORS[g];
     html += `<div style="font-weight:700;color:${col.text};margin:14px 0 8px;">${groupDisplayName(g)}</div>`;
     groups[g].forEach(name=>{
       const weeklyDone = !!liveCallData[name];
+      const dreamDone = !!liveDreamData[name];
       const monthDone = !!liveMonthlyData[name];
       let eventDone = 0;
       const absentNotes = [];
@@ -1996,6 +2030,7 @@ function renderLiveTrackPanel(){
             <span style="font-weight:700;font-size:13.5px;">${name}${akaOf[name]?`（${akaOf[name]}）`:""}</span>
             <span style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;">
               <span style="padding:3px 9px;border-radius:999px;background:${weeklyDone?col.bg:'#EDEBE3'};color:${weeklyDone?col.text:'#9A9284'};font-weight:600;">📞 ${weeklyDone?"已通話":"未完成"}</span>
+              <span style="padding:3px 9px;border-radius:999px;background:${dreamDone?col.bg:'#EDEBE3'};color:${dreamDone?col.text:'#9A9284'};font-weight:600;">⭐ ${dreamDone?"已圓夢支持":"未完成"}</span>
               <span style="padding:3px 9px;border-radius:999px;background:${monthDone?col.bg:'#EDEBE3'};color:${monthDone?col.text:'#9A9284'};font-weight:600;">🗓️ ${monthDone?"已覆盤":"未完成"}</span>
               <span style="padding:3px 9px;border-radius:999px;background:${eventDone>0?col.bg:'#EDEBE3'};color:${eventDone>0?col.text:'#9A9284'};font-weight:600;">🎉 ${eventDone}/${LIVE_EVENTS.length} 場</span>
             </span>
@@ -2026,6 +2061,25 @@ if(fbEnabled){
     liveMonthlyData = decodeLiveFlat(snap.val());
     renderLiveTrackPanel();
   });
+  fbDb.ref(`village/monthlyDream/${liveMonthKey}`).on("value", snap=>{
+    liveDreamData = decodeLiveFlat(snap.val());
+    renderLiveTrackPanel();
+  });
+  fbDb.ref("village/checkins").on("value", snap=>{
+    const raw = snap.val() || {};
+    liveAllWeeksCheckins = {};
+    Object.keys(raw).forEach(wk=>{ liveAllWeeksCheckins[wk] = decodeLiveNode(raw[wk]); });
+  });
+  fbDb.ref("village/monthlyReview").on("value", snap=>{
+    const raw = snap.val() || {};
+    liveAllMonthsReview = {};
+    Object.keys(raw).forEach(mk=>{ liveAllMonthsReview[mk] = decodeLiveFlat(raw[mk]); });
+  });
+  fbDb.ref("village/monthlyDream").on("value", snap=>{
+    const raw = snap.val() || {};
+    liveAllMonthsDream = {};
+    Object.keys(raw).forEach(mk=>{ liveAllMonthsDream[mk] = decodeLiveFlat(raw[mk]); });
+  });
 } else {
   renderLiveTrackPanel();
 }
@@ -2036,6 +2090,9 @@ document.getElementById("liveTrackHead").addEventListener("click", ()=>{
   const isOpen = body.style.display !== "none";
   body.style.display = isOpen ? "none" : "block";
   chev.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+});
+document.getElementById("copyLiveSummaryBtn").addEventListener("click", ()=>{
+  copyWithFeedback(document.getElementById("copyLiveSummaryBtn"), generateLiveSummaryReport(), "已複製總表");
 });
 
 document.getElementById("leaderPanelHead").addEventListener("click", ()=>{
