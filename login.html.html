@@ -7,20 +7,17 @@
 <title>小天使登入系統</title>
 <style>
   :root{
-    --bg1:#EAF2FB; --bg2:#F3E9FB; --bg3:#FDEFE0;
+    --bg1:#F3F4F0; --bg2:#EDEFEA; --bg3:#E8ECEB;
     --card:#FFFFFF;
-    --ink:#2B3A44; --ink-soft:#6E7B87;
-    --line:#E7E4F3;
-    --sage:#4F7A6B; --sage-deep:#345A4C; --sage-pale:#E4EFE9;
-    --amber:#E0A248; --amber-deep:#B5732A; --amber-pale:#FBEEDD;
+    --ink:#2E3532; --ink-soft:#6E7873;
+    --line:#E1E5E0;
+    --sage:#5C7A70; --sage-deep:#3E564D; --sage-pale:#E6EEEA;
+    --amber:#B8935A; --amber-deep:#8A6836; --amber-pale:#F2EBDD;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    background:
-      radial-gradient(circle at 15% 10%, rgba(255,230,190,0.55) 0%, transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(200,220,255,0.5) 0%, transparent 45%),
-      linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%);
+    background: linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%);
     font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,sans-serif;
     color:var(--ink);
     min-height:100vh;
@@ -29,9 +26,9 @@
   h1,h2,h3{ margin:0; }
   button{ font-family:inherit; }
   .card{
-    background:rgba(255,255,255,0.9); backdrop-filter:blur(12px);
-    border-radius:22px; border:1px solid rgba(255,255,255,0.6);
-    box-shadow:0 8px 26px rgba(120,100,180,0.12);
+    background:rgba(255,253,248,0.92); backdrop-filter:blur(12px);
+    border-radius:26px; border:1px solid rgba(255,255,255,0.7);
+    box-shadow:0 8px 26px rgba(60,80,70,0.1);
   }
 
   /* ---------- 登入畫面 ---------- */
@@ -40,6 +37,7 @@
   }
   .login-card{ padding:32px 28px 28px; width:min(94vw,420px); text-align:center; }
   .login-card h1{ font-size:24px;margin-bottom:4px;color:var(--sage-deep);font-weight:800; }
+  .login-stars{ font-size:14px; letter-spacing:6px; color:var(--amber); margin-bottom:6px; }
   .login-card .sub{ font-size:13px;color:var(--ink-soft);margin-bottom:20px;line-height:1.6; }
   input[type=text], input[type=password]{
     width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);
@@ -48,15 +46,15 @@
   input:focus{ border-color:var(--sage); }
   .primary-btn{
     width:100%;padding:13px;border-radius:999px;border:none;
-    background:linear-gradient(135deg,#5C8C7B,#3F6656);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
-    box-shadow:0 6px 16px rgba(52,90,76,0.3);
+    background:linear-gradient(135deg,#5C7A70,#3E564D);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 16px rgba(62,86,77,0.3);
   }
-  .primary-btn:disabled{ background:#C7CDC8;cursor:not-allowed; box-shadow:none; }
+  .primary-btn:disabled{ background:#E5DDD0;cursor:not-allowed; box-shadow:none; }
   .err-msg{ font-size:12.5px;color:#C0435C;margin:-4px 0 12px;min-height:16px; }
   .hint-msg{ font-size:11.5px;color:var(--ink-soft);margin:10px 0 0; line-height:1.6; }
   .suggest-box{
     position:absolute; left:0; right:0; top:calc(100% - 8px); z-index:20;
-    background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(80,70,140,0.18);
+    background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(60,80,70,0.16);
     border:1px solid var(--line); max-height:220px; overflow-y:auto;
     display:none; text-align:left;
   }
@@ -73,6 +71,8 @@
 
   /* ---------- 主畫面 ---------- */
   #dashScreen{ display:none; }
+  .app-brand{ font-size:13px; font-weight:800; color:var(--ink-soft); letter-spacing:1px; margin-bottom:6px; }
+  .welcome-sub{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
   .top-bar{
     display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;
   }
@@ -93,6 +93,15 @@
   .member-card{
     background:#FBFAF6; border-radius:14px; padding:12px 16px; margin-bottom:8px;
   }
+  .team-member-card{
+    background:#fff; border-radius:18px; padding:16px 18px; margin-bottom:16px;
+    border-left:6px solid var(--sage); box-shadow:0 4px 16px rgba(60,80,70,0.1);
+  }
+  .team-member-card .mc-name{ font-size:17px; }
+  .team-member-card .cat-block{
+    background:#FBFAF6; border-radius:12px; padding:10px 12px; margin-top:8px;
+  }
+  .team-member-card .cat-label{ font-size:11px; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
   .member-card .mc-head{
     display:flex; justify-content:space-between; align-items:center; cursor:pointer;
   }
@@ -116,6 +125,17 @@
   .self-stat .ss-label{ font-size:11px; color:var(--ink-soft); }
 
   .empty-note{ color:var(--ink-soft); font-size:13px; text-align:center; padding:20px 0; }
+  .tab-switch{
+    display:flex; gap:8px; margin-bottom:14px; background:rgba(255,255,255,0.7);
+    border-radius:14px; padding:5px; box-shadow:0 3px 10px rgba(60,80,70,0.08);
+  }
+  .tab-switch-btn{
+    flex:1; padding:11px 8px; border-radius:11px; border:none; background:none;
+    font-size:13.5px; font-weight:700; color:var(--ink-soft); cursor:pointer;
+    transition:all .2s ease;
+  }
+  .tab-switch-btn.active{ background:var(--sage); color:#fff; box-shadow:0 3px 10px rgba(52,90,76,0.25); }
+  .hint-note{ font-size:11.5px; color:var(--ink-soft); background:#F0EEE7; border-radius:10px; padding:8px 12px; margin-top:10px; line-height:1.6; }
 
   /* ---------- 搭檔感情狀態 ---------- */
   .partner-card{ background:linear-gradient(135deg,var(--amber-pale) 0%,#fff 60%); }
@@ -138,16 +158,22 @@
   .stage-desc{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
   .stage-sub{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
   .progress-outer{ background:var(--sage-pale); border-radius:999px; height:10px; overflow:hidden; }
-  .progress-inner{ height:100%; background:linear-gradient(90deg,var(--amber),#F0C77A); border-radius:999px; transition:width .5s ease; }
+  .progress-inner{ height:100%; background:linear-gradient(90deg,var(--amber),#D4B87E); border-radius:999px; transition:width .5s ease; }
 
   .arrival-row{
-    background:#FBFAF6; border-radius:14px; padding:10px 14px; margin-bottom:8px;
+    background:#FBFAF6; border-radius:16px; padding:16px 18px; margin-bottom:16px;
+    border-left:6px solid var(--line); box-shadow:0 3px 12px rgba(60,80,70,0.06);
     transition:background .3s ease, box-shadow .3s ease;
   }
   .arrival-row.both-arrived{
     background:linear-gradient(135deg,#FFF3D6,#FBE7F5);
     box-shadow:0 0 0 2px var(--amber);
   }
+  .arrival-date-badge{
+    display:inline-block; font-size:12.5px; font-weight:700; color:#fff;
+    padding:4px 12px; border-radius:999px; margin-bottom:8px;
+  }
+  .arrival-headline{ font-size:19px; font-weight:900; color:var(--ink); margin-bottom:4px; line-height:1.3; }
   .arrival-label{ font-size:14px; font-weight:700; color:var(--ink); margin-bottom:8px; }
   .arrival-btns{ display:flex; gap:8px; flex-wrap:wrap; }
   .mini-toggle{
@@ -157,6 +183,27 @@
   .mini-toggle.on{ background:var(--sage); border-color:var(--sage); color:#fff; }
   .mini-toggle.on-absent{ background:#C0435C; border-color:#C0435C; color:#fff; }
   .reason-note{ font-size:11px; color:#C0435C; background:#FCE9EC; border-radius:8px; padding:6px 10px; margin-top:6px; }
+  .score-note-block{
+    margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);
+  }
+  .score-note-label{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; }
+  .inline-score-value{ font-size:14px; font-weight:800; color:var(--sage-deep); min-width:40px; text-align:right; }
+  .score-note-input{
+    width:100%; min-height:56px; border-radius:10px; border:1.5px solid var(--line);
+    padding:8px 10px; font-size:12.5px; font-family:inherit; resize:vertical; outline:none;
+  }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(43,58,52,0.4);
+    display:none; align-items:center; justify-content:center; z-index:60; padding:20px;
+  }
+  .modal{ background:var(--card); border-radius:20px; padding:22px; width:min(92vw,380px); }
+  .modal h3{ margin:0 0 4px;font-size:17px;color:var(--sage-deep); }
+  .modal .modal-sub{ font-size:12.5px;color:var(--ink-soft);margin-bottom:14px; }
+  .modal-close{
+    width:100%; padding:10px; border-radius:10px; border:none;
+    background:#F0EEE7; color:var(--ink-soft); font-size:13px; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -164,6 +211,7 @@
 <!-- ============ 登入 / 註冊畫面 ============ -->
 <div id="loginScreen">
   <div class="card login-card">
+    <div class="login-stars">✦ ⋆ ✧ ⋆ ✦</div>
     <h1>👼 小天使登入系統</h1>
     <div class="sub">輸入你的名字和密碼。第一次輸入會自動幫你建立帳號，之後要用同一組密碼登入。</div>
     <div style="position:relative;">
@@ -173,18 +221,45 @@
     <input type="password" id="pwInput" placeholder="設定或輸入你的密碼">
     <div class="err-msg" id="loginErr"></div>
     <button class="primary-btn" id="enterBtn">登入 / 註冊</button>
+    <div style="text-align:center;margin-top:10px;">
+      <span id="forgotPwLink" style="font-size:12px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;">忘記密碼？點此重設</span>
+    </div>
     <div class="hint-msg">大天使請直接輸入你的大天使名字（例如：特特、小珠、韋萱、Yoyo、Linda、鎮宏），登入後會看到專屬的管理畫面。</div>
+    <div class="hint-msg" id="connStatus" style="font-weight:700;"></div>
   </div>
 </div>
 
 <!-- ============ 主畫面 ============ -->
 <div id="dashScreen">
   <div class="wrap">
+    <div class="app-brand">👼 小天使打卡</div>
     <div class="top-bar">
-      <div><span class="who" id="whoName">－</span><span class="role-badge" id="roleBadge">小天使</span></div>
+      <div>
+        <div><span class="who" id="whoName">－</span><span class="role-badge" id="roleBadge">小天使</span></div>
+        <div class="welcome-sub" id="welcomeSub"></div>
+      </div>
       <button class="logout-btn" id="logoutBtn">登出</button>
     </div>
     <div id="dashContent"></div>
+  </div>
+</div>
+
+<!-- ============ 自訂輸入視窗（取代瀏覽器原生 prompt/confirm，避免被 App 內建瀏覽器擋掉） ============ -->
+<div class="modal-overlay" id="customPromptOverlay">
+  <div class="modal">
+    <h3 id="customPromptTitle">標題</h3>
+    <div class="modal-sub" id="customPromptSub" style="display:none;"></div>
+    <input type="text" id="customPromptInput" style="width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:15px;margin-bottom:14px;outline:none;">
+    <div id="customRatingBlock" style="display:none;margin-bottom:14px;text-align:center;">
+      <div id="ratingEmoji" style="font-size:40px;margin-bottom:6px;">😐</div>
+      <div id="ratingValue" style="font-size:26px;font-weight:900;color:var(--sage-deep);margin-bottom:10px;">5 分</div>
+      <input type="range" id="ratingSlider" min="1" max="10" value="5" style="width:100%;accent-color:var(--sage);">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-top:4px;">
+        <span>1 低</span><span>10 高</span>
+      </div>
+    </div>
+    <button class="primary-btn" id="customPromptOk" style="margin-bottom:8px;">確定</button>
+    <button class="modal-close" id="customPromptCancel">取消</button>
   </div>
 </div>
 
@@ -288,18 +363,25 @@ const LEADER_NAMES = Object.keys(groups); // 大天使名字＝該組的 key
 // 實際的同學會／課後課場次（有日期、主題、地點）
 const EVENTS = [
   {key:"e0819", emoji:"👥", date:"8/19（三）", time:"19:00－22:00", type:"同學會", topic:"", location:"leat會議中心 1003", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0823", emoji:"🎓", date:"8/23（日）", time:"13:00－18:00", type:"巨笑小天使培訓", topic:"", location:"", buddyRequired:false, formLink:"https://forms.gle/SPJdxSbtFAX9AQJg6"},
   {key:"e0826", emoji:"📖", date:"8/26（三）", time:"19:00－22:00", type:"課後課", topic:"我喜歡／討厭自己的原因", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
+  {key:"e0828", emoji:"🌟", date:"8/28（五）", time:"19:00－21:30", type:"迎新活動", topic:"", location:"典空間（臺北市中山區力行里南京東路三段28號B1，松江南京五號出口）", buddyRequired:false, formLink:"https://forms.gle/D61pXavpZAehSyaq7"},
   {key:"e0903", emoji:"📖", date:"9/3（四）",  time:"19:00－22:00", type:"課後課", topic:"上平下緣傳愛道", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
   {key:"e0908", emoji:"📖", date:"9/8（二）",  time:"19:00－22:00", type:"課後課", topic:"對好心沒好報的誤解", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
   {key:"e0916", emoji:"📖", date:"9/16（三）", time:"19:00－22:00", type:"課後課", topic:"金錢的助流", location:"格來天漾 13F", buddyRequired:true, regNote:"請至心成官網報名"},
-  {key:"e0823", emoji:"🎓", date:"8/23（日）", time:"13:00－18:00", type:"巨笑小天使培訓", topic:"", location:"", buddyRequired:false, formLink:"https://forms.gle/SPJdxSbtFAX9AQJg6"},
   {key:"e0917", emoji:"🎉", date:"9/17（四）", time:"19:00－21:30", type:"小天使聚會", topic:"", location:"", buddyRequired:false, regNote:"報名連結尚未公布"},
-  {key:"e0828", emoji:"🌟", date:"8/28（五）", time:"19:00－21:30", type:"迎新活動", topic:"", location:"典空間（臺北市中山區力行里南京東路三段28號B1，松江南京五號出口）", buddyRequired:false, formLink:"https://forms.gle/D61pXavpZAehSyaq7"},
 ];
 const EVENT_DATES = {
   e0819: new Date(2026,7,19), e0826: new Date(2026,7,26), e0903: new Date(2026,8,3),
   e0908: new Date(2026,8,8),  e0916: new Date(2026,8,16),
   e0823: new Date(2026,7,23), e0917: new Date(2026,8,17), e0828: new Date(2026,7,28),
+};
+const EVENT_TYPE_COLOR = {
+  "同學會": "#5B9BD5",
+  "課後課": "#9B7FD1",
+  "巨笑小天使培訓": "#E0A248",
+  "小天使聚會": "#E88FA8",
+  "迎新活動": "#4F9A6B",
 };
 function weekKeyForDate(d){
   const diffDays = Math.floor((d - WEEK_START) / 86400000);
@@ -308,9 +390,10 @@ function weekKeyForDate(d){
 }
 // 搭檔小天使之間：每週要做的事（都算進感情經驗值）
 const PARTNER_WEEKLY_TASKS = [
-  {key:"call", emoji:"📞", label:"每週通話／圓夢支持"},
+  {key:"call", emoji:"📞", label:"每週通話"},
 ];
-const TASKS = PARTNER_WEEKLY_TASKS;
+const STUDENT_WEEKLY_TASK = {key:"studentCall", emoji:"📱", label:"陪伴新生每週通話"};
+const TASKS = [...PARTNER_WEEKLY_TASKS, STUDENT_WEEKLY_TASK];
 
 const WEEK_START = new Date(2026,7,3);
 function formatMD(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
@@ -327,8 +410,8 @@ const weekLabel = `第 ${weekIdx+1} 週（${formatMD(weekStart)}－${formatMD(we
 const now = new Date();
 const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
 const monthLabel = `${now.getFullYear()} 年 ${now.getMonth()+1} 月`;
-let monthlyData = {}; // {name:true}  當月
-let allMonthsReview = {}; // {monthKey:{name:true}}  歷史每月覆盤，用來算經驗值
+let monthlyData = {}; // {name:true}  當月：關懷員覆盤
+let allMonthsReview = {}; // {monthKey:{name:true}}  歷史每月覆盤，用來算愛心
 function isMonthlyDone(name){ return !!monthlyData[name]; }
 function setMonthlyDone(name, val){
   if(fbEnabled){ fbDb.ref(`village/monthlyReview/${monthKey}/${encodeURIComponent(name)}`).set(val); }
@@ -338,6 +421,61 @@ function setMonthlyDone(name, val){
     allMonthsReview[monthKey][name] = val;
     refreshCurrentDash();
   }
+}
+
+let monthlyDreamData = {}; // {name:true}  當月：圓夢支持
+let allMonthsDream = {};   // {monthKey:{name:true}}  歷史每月圓夢支持，用來算愛心
+function isDreamDone(name){ return !!monthlyDreamData[name]; }
+function setDreamDone(name, val){
+  if(fbEnabled){ fbDb.ref(`village/monthlyDream/${monthKey}/${encodeURIComponent(name)}`).set(val); }
+  else {
+    monthlyDreamData[name] = val;
+    if(!allMonthsDream[monthKey]) allMonthsDream[monthKey]={};
+    allMonthsDream[monthKey][name] = val;
+    refreshCurrentDash();
+  }
+}
+
+// ---------- 打卡時間備註（通話／圓夢支持／關懷員覆盤，都可以填實際時間） ----------
+let callTimeData = {};   // {name:time} 本週通話時間
+let studentCallTimeData = {}; // {name:time} 本週陪伴新生通話時間
+let dreamTimeData = {};  // {name:time} 本月圓夢支持時間
+let reviewTimeData = {}; // {name:time} 本月覆盤時間
+function setCallTime(name, time){
+  if(fbEnabled){ fbDb.ref(`village/callTime/${weekKey}/${encodeURIComponent(name)}`).set(time); }
+  else { callTimeData[name] = time; refreshCurrentDash(); }
+}
+function setStudentCallTime(name, time){
+  if(fbEnabled){ fbDb.ref(`village/studentCallTime/${weekKey}/${encodeURIComponent(name)}`).set(time); }
+  else { studentCallTimeData[name] = time; refreshCurrentDash(); }
+}
+function saveSelfScore(path, val){
+  if(val===null || val===undefined) return;
+  if(fbEnabled){ fbDb.ref(path).set(val); }
+}
+
+// ---------- 每個場次的自評分數 + 心得（直接顯示在卡片上，可隨時調整） ----------
+let eventScoreData = {}; // {eventKey:{name:score}}
+let callScoreData = {};        // {name:score} 本週通話分數
+let studentCallScoreData = {}; // {name:score} 本週新生通話分數
+let dreamScoreData = {};       // {name:score} 本月圓夢支持分數
+let reviewScoreData = {};      // {name:score} 本月覆盤分數
+let eventNoteData = {};  // {eventKey:{name:note}}
+function setEventScore(name, eventKey, score){
+  if(fbEnabled){ fbDb.ref(`village/selfScore/event/${eventKey}/${encodeURIComponent(name)}`).set(score); }
+  else { if(!eventScoreData[eventKey]) eventScoreData[eventKey]={}; eventScoreData[eventKey][name]=score; refreshCurrentDash(); }
+}
+function setEventNote(name, eventKey, note){
+  if(fbEnabled){ fbDb.ref(`village/selfNote/event/${eventKey}/${encodeURIComponent(name)}`).set(note); }
+  else { if(!eventNoteData[eventKey]) eventNoteData[eventKey]={}; eventNoteData[eventKey][name]=note; refreshCurrentDash(); }
+}
+function setDreamTime(name, time){
+  if(fbEnabled){ fbDb.ref(`village/dreamTime/${monthKey}/${encodeURIComponent(name)}`).set(time); }
+  else { dreamTimeData[name] = time; refreshCurrentDash(); }
+}
+function setReviewTime(name, time){
+  if(fbEnabled){ fbDb.ref(`village/reviewTime/${monthKey}/${encodeURIComponent(name)}`).set(time); }
+  else { reviewTimeData[name] = time; refreshCurrentDash(); }
 }
 
 let checkinData = {};      // {task:{name:true}}  本週：搭檔每週任務（通話／圓夢支持）
@@ -442,6 +580,30 @@ function startCheckinSync(){
     eventRegisteredData = decodeNode(snap.val());
     refreshCurrentDash();
   });
+  fbDb.ref("village/selfScore/event").on("value", snap=>{
+    eventScoreData = decodeNode(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/selfScore/call/${weekKey}`).on("value", snap=>{
+    callScoreData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/selfScore/studentCall/${weekKey}`).on("value", snap=>{
+    studentCallScoreData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/selfScore/dream/${monthKey}`).on("value", snap=>{
+    dreamScoreData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/selfScore/review/${monthKey}`).on("value", snap=>{
+    reviewScoreData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/selfNote/event").on("value", snap=>{
+    eventNoteData = decodeNode(snap.val());
+    refreshCurrentDash();
+  });
   fbDb.ref(`village/monthlyReview/${monthKey}`).on("value", snap=>{
     monthlyData = decodeFlat(snap.val());
     refreshCurrentDash();
@@ -450,6 +612,32 @@ function startCheckinSync(){
     const raw = snap.val() || {};
     allMonthsReview = {};
     Object.keys(raw).forEach(mk=>{ allMonthsReview[mk] = decodeFlat(raw[mk]); });
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/monthlyDream/${monthKey}`).on("value", snap=>{
+    monthlyDreamData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref("village/monthlyDream").on("value", snap=>{
+    const raw = snap.val() || {};
+    allMonthsDream = {};
+    Object.keys(raw).forEach(mk=>{ allMonthsDream[mk] = decodeFlat(raw[mk]); });
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/callTime/${weekKey}`).on("value", snap=>{
+    callTimeData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/studentCallTime/${weekKey}`).on("value", snap=>{
+    studentCallTimeData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/dreamTime/${monthKey}`).on("value", snap=>{
+    dreamTimeData = decodeFlat(snap.val());
+    refreshCurrentDash();
+  });
+  fbDb.ref(`village/reviewTime/${monthKey}`).on("value", snap=>{
+    reviewTimeData = decodeFlat(snap.val());
     refreshCurrentDash();
   });
 }
@@ -463,6 +651,25 @@ const RELATIONSHIP_STAGES = [
   {min:250, name:"革命夥伴", emoji:"🔥", desc:"一起走過的路數不清，感情堅若磐石", avatar:"🤩", frame:"#E8794F", glow:"0 0 18px rgba(232,121,79,0.65)", deco:"🔥"},
   {min:400, name:"心靈雙胞胎", emoji:"👯", desc:"默契好到像失散多年的雙胞胎，太猛了！", avatar:"✨", frame:"gold-rainbow", glow:"0 0 22px rgba(224,162,72,0.75)", deco:"👑"},
 ];
+const SOLO_STAGES = [
+  {min:0,   name:"剛起步的天使", emoji:"🌱", desc:"你才剛開始這趟守護新生的旅程，慢慢來，每一步都算數", avatar:"🙂", frame:"#C7CDC8", glow:"none", deco:""},
+  {min:30,  name:"用心陪伴者", emoji:"🌿", desc:"你已經開始習慣這份陪伴的節奏了", avatar:"😊", frame:"#8FBFA6", glow:"0 0 10px rgba(143,191,166,0.5)", deco:"🌿"},
+  {min:80,  name:"可靠的守護者", emoji:"🤝", desc:"新生跟大家都感受得到你的用心", avatar:"😄", frame:"#5B9BD5", glow:"0 0 12px rgba(91,155,213,0.55)", deco:"🛡️"},
+  {min:150, name:"熟門熟路的老手", emoji:"😄", desc:"你已經很有經驗，也很懂怎麼照顧人", avatar:"🥳", frame:"#E0A248", glow:"0 0 14px rgba(224,162,72,0.6)", deco:"⭐"},
+  {min:250, name:"堅持不懈的天使", emoji:"🔥", desc:"一路走來累積的付出，數都數不清", avatar:"🤩", frame:"#E8794F", glow:"0 0 18px rgba(232,121,79,0.65)", deco:"🔥"},
+  {min:400, name:"傳奇守護者", emoji:"✨", desc:"你的用心已經影響了好多人，太猛了！", avatar:"✨", frame:"gold-rainbow", glow:"0 0 22px rgba(224,162,72,0.75)", deco:"👑"},
+];
+function soloScore(name){
+  let pts = 0;
+  Object.keys(allWeeksCalls).forEach(wk=>{
+    if(allWeeksCalls[wk].studentCall && allWeeksCalls[wk].studentCall[name]) pts += 10;
+    if(allWeeksCalls[wk].call && allWeeksCalls[wk].call[name]) pts += 5;
+  });
+  Object.keys(allMonthsReview).forEach(mk=>{ if(allMonthsReview[mk][name]) pts += 10; });
+  Object.keys(allMonthsDream).forEach(mk=>{ if(allMonthsDream[mk][name]) pts += 10; });
+  EVENTS.forEach(ev=>{ if(isEventChecked(name, ev.key)) pts += 10; });
+  return pts;
+}
 // 夢幻連動判定：小夥伴（新生）跟小天使一起到場，或是只有小天使到場但當週跟搭檔也互相通話分享
 function dreamyLinkForEvent(name, eventKey){
   const meArrived = isEventChecked(name, eventKey);
@@ -480,7 +687,7 @@ function dreamyLinkForEvent(name, eventKey){
 function pairCallXP(name, mate){
   if(!mate) return 0;
   let xp = 0;
-  // 每週通話／圓夢支持：兩人都做 +20，只有一人做 +10
+  // 每週通話：兩人都做 +20，只有一人做 +10
   Object.keys(allWeeksCalls).forEach(wk=>{
     PARTNER_WEEKLY_TASKS.forEach(t=>{
       const c = allWeeksCalls[wk] && allWeeksCalls[wk][t.key];
@@ -496,6 +703,13 @@ function pairCallXP(name, mate){
     if(r[name]) xp += 10;
     if(r[mate]) xp += 10;
   });
+  // 每月圓夢支持：兩人都做 +20，只有一人做 +10
+  Object.keys(allMonthsDream).forEach(mk=>{
+    const r = allMonthsDream[mk] || {};
+    const meDid = !!r[name], mateDid = !!r[mate];
+    if(meDid && mateDid) xp += 20;
+    else if(meDid || mateDid) xp += 10;
+  });
   // 課後課／同學會場次：自己或搭檔有出席都各自 +10，同時／通話連動再加碼 +15
   EVENTS.forEach(ev=>{
     if(isEventChecked(name, ev.key)) xp += 10;
@@ -506,13 +720,15 @@ function pairCallXP(name, mate){
   });
   return xp;
 }
-function stageFor(xp){
-  let cur = RELATIONSHIP_STAGES[0];
-  RELATIONSHIP_STAGES.forEach(s=>{ if(xp>=s.min) cur=s; });
+function stageFor(xp, stageSet){
+  const set = stageSet || RELATIONSHIP_STAGES;
+  let cur = set[0];
+  set.forEach(s=>{ if(xp>=s.min) cur=s; });
   return cur;
 }
-function nextStageFor(xp){
-  return RELATIONSHIP_STAGES.find(s=>s.min>xp) || null;
+function nextStageFor(xp, stageSet){
+  const set = stageSet || RELATIONSHIP_STAGES;
+  return set.find(s=>s.min>xp) || null;
 }
 function refreshCurrentDash(){
   if(!myName) return;
@@ -522,13 +738,114 @@ function refreshCurrentDash(){
 }
 
 // ---------- 小提醒吐司 + 夢幻連動特效 ----------
+// ---------- 自訂輸入視窗（取代 window.prompt / window.confirm，避免被 App 內建瀏覽器擋掉） ----------
+function customPrompt(title, defaultVal){
+  return new Promise(resolve=>{
+    const overlay = document.getElementById("customPromptOverlay");
+    const titleEl = document.getElementById("customPromptTitle");
+    const subEl = document.getElementById("customPromptSub");
+    const input = document.getElementById("customPromptInput");
+    const okBtn = document.getElementById("customPromptOk");
+    const cancelBtn = document.getElementById("customPromptCancel");
+
+    titleEl.textContent = title;
+    subEl.style.display = "none";
+    input.style.display = "block";
+    input.value = defaultVal || "";
+    document.getElementById("customRatingBlock").style.display = "none";
+    overlay.style.display = "flex";
+    setTimeout(()=>input.focus(), 50);
+
+    function cleanup(result){
+      overlay.style.display = "none";
+      okBtn.onclick = null; cancelBtn.onclick = null; input.onkeydown = null;
+      resolve(result);
+    }
+    okBtn.onclick = ()=> cleanup(input.value);
+    cancelBtn.onclick = ()=> cleanup(null);
+    input.onkeydown = e=>{ if(e.key==="Enter") cleanup(input.value); };
+  });
+}
+function customConfirm(msg){
+  return new Promise(resolve=>{
+    const overlay = document.getElementById("customPromptOverlay");
+    const titleEl = document.getElementById("customPromptTitle");
+    const subEl = document.getElementById("customPromptSub");
+    const input = document.getElementById("customPromptInput");
+    const okBtn = document.getElementById("customPromptOk");
+    const cancelBtn = document.getElementById("customPromptCancel");
+
+    titleEl.textContent = "請確認";
+    subEl.textContent = msg;
+    subEl.style.display = "block";
+    input.style.display = "none";
+    document.getElementById("customRatingBlock").style.display = "none";
+    overlay.style.display = "flex";
+
+    function cleanup(result){
+      overlay.style.display = "none";
+      okBtn.onclick = null; cancelBtn.onclick = null;
+      resolve(result);
+    }
+    okBtn.onclick = ()=> cleanup(true);
+    cancelBtn.onclick = ()=> cleanup(false);
+  });
+}
+const RATING_EMOJI = ["😞","😞","😕","😕","😐","😐","🙂","🙂","😄","🤩"];
+function customRating(title, subtitle){
+  return new Promise(resolve=>{
+    const overlay = document.getElementById("customPromptOverlay");
+    const titleEl = document.getElementById("customPromptTitle");
+    const subEl = document.getElementById("customPromptSub");
+    const input = document.getElementById("customPromptInput");
+    const ratingBlock = document.getElementById("customRatingBlock");
+    const slider = document.getElementById("ratingSlider");
+    const valueEl = document.getElementById("ratingValue");
+    const emojiEl = document.getElementById("ratingEmoji");
+    const okBtn = document.getElementById("customPromptOk");
+    const cancelBtn = document.getElementById("customPromptCancel");
+
+    titleEl.textContent = title;
+    subEl.textContent = subtitle || "";
+    subEl.style.display = subtitle ? "block" : "none";
+    input.style.display = "none";
+    ratingBlock.style.display = "block";
+    slider.value = 5;
+    valueEl.textContent = "5 分";
+    emojiEl.textContent = RATING_EMOJI[4];
+    cancelBtn.textContent = "跳過";
+    overlay.style.display = "flex";
+
+    slider.oninput = ()=>{
+      valueEl.textContent = `${slider.value} 分`;
+      emojiEl.textContent = RATING_EMOJI[Number(slider.value)-1];
+    };
+
+    function cleanup(result){
+      overlay.style.display = "none";
+      ratingBlock.style.display = "none";
+      cancelBtn.textContent = "取消";
+      okBtn.onclick = null; cancelBtn.onclick = null; slider.oninput = null;
+      resolve(result);
+    }
+    okBtn.onclick = ()=> cleanup(Number(slider.value));
+    cancelBtn.onclick = ()=> cleanup(null);
+  });
+}
+document.getElementById("customPromptOverlay").addEventListener("click", e=>{
+  if(e.target===e.currentTarget) document.getElementById("customPromptCancel").click();
+});
+
+let activeCareTab = "care"; // "care" 小天使互相關心 / "student" 陪伴一階新生
+let leaderActiveTab = "care"; // 大天使組別控制台的左右切換
+
 let toastTimer = null;
 function showToast(msg){
   let t = document.getElementById("toastEl");
   if(!t){
     t = document.createElement("div");
     t.id = "toastEl";
-    t.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#345A4C;color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:600;z-index:60;opacity:0;transition:opacity .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;";
+    t.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#3E564D;color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:600;z-index:60;opacity:0;transition:opacity .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;";
     document.body.appendChild(t);
   }
   t.textContent = msg;
@@ -593,9 +910,18 @@ enterBtn.addEventListener("click", async ()=>{
   if(!name || !pw){ loginErr.textContent = "請輸入名字和密碼"; return; }
 
   if(!fbEnabled){
-    myName = name;
-    localStorage.setItem("loginPwSet_"+name, "1");
-    showDashboard();
+    const localKey = "loginPw_"+name;
+    const savedLocalPw = localStorage.getItem(localKey);
+    if(savedLocalPw === null){
+      localStorage.setItem(localKey, pw);
+      myName = name;
+      showDashboard();
+    } else if(savedLocalPw === pw){
+      myName = name;
+      showDashboard();
+    } else {
+      loginErr.textContent = "密碼不正確，請再確認一次（目前是本機模式，密碼只存在這台裝置）";
+    }
     return;
   }
 
@@ -620,6 +946,39 @@ enterBtn.addEventListener("click", async ()=>{
   enterBtn.disabled = false;
 });
 
+document.getElementById("forgotPwLink").addEventListener("click", async ()=>{
+  const name = nameInput.value.trim() || (await customPrompt("請輸入你的名字（跟名單上一致）：", "") || "");
+  if(!name) return;
+  const ok = await customConfirm(`確定要重設「${name}」的密碼嗎？重設後，原本的舊密碼就會失效，只有新密碼能登入（同一個名字永遠只有一組密碼）。`);
+  if(!ok) return;
+  const newPw = await customPrompt(`請輸入「${name}」的新密碼：`, "");
+  if(!newPw) return;
+
+  if(!fbEnabled){
+    localStorage.setItem("loginPw_"+name, newPw);
+    nameInput.value = name;
+    pwInput.value = newPw;
+    loginErr.textContent = "";
+    showToastOnLogin("密碼已重設，可以直接登入了！");
+    return;
+  }
+
+  try{
+    await fbDb.ref(`accounts/${encodeURIComponent(name)}`).set(newPw);
+    nameInput.value = name;
+    pwInput.value = newPw;
+    loginErr.textContent = "";
+    showToastOnLogin("密碼已重設，可以直接登入了！");
+  }catch(e){
+    loginErr.textContent = "重設失敗，請稍後再試";
+  }
+});
+function showToastOnLogin(msg){
+  loginErr.style.color = "var(--sage-deep)";
+  loginErr.textContent = msg;
+  setTimeout(()=>{ loginErr.style.color = ""; }, 4000);
+}
+
 document.getElementById("logoutBtn").addEventListener("click", ()=>{
   document.getElementById("dashScreen").style.display = "none";
   document.getElementById("loginScreen").style.display = "flex";
@@ -631,6 +990,7 @@ function showDashboard(){
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("dashScreen").style.display = "block";
   document.getElementById("whoName").textContent = label(myName);
+  document.getElementById("welcomeSub").textContent = "打卡陪伴，也是陪自己成長";
 
   const isLeader = LEADER_NAMES.includes(myName);
   const roleBadge = document.getElementById("roleBadge");
@@ -662,6 +1022,10 @@ function renderLeaderDash(name, content){
       <div class="self-stat-row">
         <div class="card self-stat"><div class="ss-num">${doneAnyCount}/${members.length}</div><div class="ss-label">📞 本週是否聚會</div></div>
       </div>
+      <div class="tab-switch" id="leaderTabSwitch">
+        <button class="tab-switch-btn ${leaderActiveTab==="care"?"active":""}" data-leadertab="care">💞 小天使互相關心</button>
+        <button class="tab-switch-btn ${leaderActiveTab==="student"?"active":""}" data-leadertab="student">👶 關心一階新生</button>
+      </div>
       <div id="memberList"></div>
     </div>
 
@@ -673,12 +1037,30 @@ function renderLeaderDash(name, content){
   `;
   wireSelfSectionEvents(name, "leaderSelf");
 
+  document.getElementById("leaderTabSwitch").querySelectorAll(".tab-switch-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      leaderActiveTab = btn.dataset.leadertab;
+      renderLeaderDash(myName, document.getElementById("dashContent"));
+    });
+  });
+
   const list = document.getElementById("memberList");
-  list.innerHTML = members.map(m=>{
+  const MEMBER_ACCENTS = ["#5C7A70","#7B92A8","#B8935A","#8C9E7B","#9587A8","#A87F6B"];
+  const filteredMembers = members.filter(m=>{
+    if(leaderActiveTab==="care") return !!teammateOf(m);
+    return (byAngel[m]||[]).some(c=> c.batch && c.batch.startsWith("1-"));
+  });
+  if(!filteredMembers.length){
+    list.innerHTML = `<div class="empty-note">${leaderActiveTab==="care" ? "這組目前沒有人配對搭檔" : "這組目前沒有人帶一階新生"}</div>`;
+    return;
+  }
+  list.innerHTML = filteredMembers.map((m,mi)=>{
     const cs = byAngel[m] || [];
     const mate = teammateOf(m);
     const weeklyDone = isChecked(m, "call");
     const monthDone = isMonthlyDone(m);
+    const dreamDone = isDreamDone(m);
+    const studentCallDone = isChecked(m, "studentCall");
     const eventCount = EVENTS.filter(ev=>isEventChecked(m,ev.key)).length;
     const rows = cs.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
     const mateCases = mate ? (byAngel[mate] || []) : [];
@@ -691,7 +1073,7 @@ function renderLeaderDash(name, content){
       if(!ev.buddyRequired){
         if(meDone){ icon="✅"; text="已出席"; color=col.text; }
         else if(meAbsent){ icon="❌"; text="未能抵達"; color="#C0435C"; reasonHtml = meReason?`<br><span style="font-weight:400;font-size:11px;">原因：${meReason.replace(/</g,"&lt;")}</span>`:""; }
-        else { icon="⬜"; text="尚未出席"; color="#9A9284"; }
+        else { icon="⬜"; text="沒有按"; color="#9A9284"; }
       } else {
         const buddyDone = isEventBuddyArrived(m, ev.key);
         const buddyAbsent = isEventBuddyAbsent(m, ev.key);
@@ -699,7 +1081,8 @@ function renderLeaderDash(name, content){
         if(meDone && buddyDone){ icon="🌈"; text="雙方都到了"; color=col.text; }
         else if(meDone && !buddyDone){ icon="👼"; text="只有小天使到，小夥伴沒到"; color="#B5732A"; }
         else if(!meDone && buddyDone){ icon="🎒"; text="只有小夥伴到，小天使沒到"; color="#3A6FA0"; }
-        else { icon="⬜"; text="都未抵達"; color="#9A9284"; }
+        else if(meAbsent || buddyAbsent){ icon="❌"; text="標記為未能抵達"; color="#C0435C"; }
+        else { icon="⬜"; text="都沒有按"; color="#9A9284"; }
         const reasons = [];
         if(meAbsent) reasons.push(`小天使未到：${meReason||"（未填寫）"}`);
         if(buddyAbsent) reasons.push(`小夥伴未到：${buddyReason||"（未填寫）"}`);
@@ -708,8 +1091,25 @@ function renderLeaderDash(name, content){
       const regTag = isRegistered(m, ev.key) ? `<br><span style="font-weight:400;font-size:11px;color:var(--sage-deep);">📝 已報名</span>` : `<br><span style="font-weight:400;font-size:11px;color:#9A9284;">📝 尚未報名</span>`;
       return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}${regTag}</td></tr>`;
     }).join("");
+
+    const reflectLines = [];
+    if(callScoreData[m]!==undefined) reflectLines.push(`📞 每週通話：${callScoreData[m]} 分`);
+    if(studentCallScoreData[m]!==undefined) reflectLines.push(`📱 新生通話：${studentCallScoreData[m]} 分`);
+    if(dreamScoreData[m]!==undefined) reflectLines.push(`⭐ 圓夢支持：${dreamScoreData[m]} 分`);
+    if(reviewScoreData[m]!==undefined) reflectLines.push(`🗓️ 關懷員覆盤：${reviewScoreData[m]} 分`);
+    EVENTS.forEach(ev=>{
+      const sc = eventScoreData[ev.key] && eventScoreData[ev.key][m];
+      const note = eventNoteData[ev.key] && eventNoteData[ev.key][m];
+      if(sc!==undefined || (note && note.trim())){
+        reflectLines.push(`${ev.emoji} ${ev.date}${ev.type}：${sc!==undefined?`${sc} 分`:"（未打分）"}${note&&note.trim()?`<br><span style="color:var(--ink-soft);font-weight:400;">　「${note.replace(/</g,"&lt;")}」</span>`:""}`);
+      }
+    });
+    const reflectBlock = reflectLines.length
+      ? `<div style="font-weight:700;color:${col.text};margin:12px 0 2px;">🪞 藉事練心紀錄</div><div style="font-size:12.5px;line-height:2;">${reflectLines.join("<br>")}</div>`
+      : "";
+
     return `
-      <div class="member-card" data-member="${m}">
+      <div class="member-card team-member-card" data-member="${m}" style="border-left-color:${MEMBER_ACCENTS[mi % MEMBER_ACCENTS.length]};">
         <div class="mc-head">
           <span class="mc-name">${label(m)}</span>
           <span style="display:flex;align-items:center;gap:8px;">
@@ -717,10 +1117,25 @@ function renderLeaderDash(name, content){
             <span class="chev">▶</span>
           </span>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:11px;">
-          <span style="padding:4px 10px;border-radius:999px;background:${weeklyDone?col.bg:'#EDEBE3'};color:${weeklyDone?col.text:'#9A9284'};font-weight:600;">📞 每週通話${weeklyDone?" ✓":" 未完成"}</span>
-          <span style="padding:4px 10px;border-radius:999px;background:${monthDone?col.bg:'#EDEBE3'};color:${monthDone?col.text:'#9A9284'};font-weight:600;">🗓️ 月覆盤${monthDone?" ✓":" 未完成"}</span>
-          <span class="event-detail-btn" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:${eventCount>0?col.bg:'#EDEBE3'};color:${eventCount>0?col.text:'#9A9284'};font-weight:600;text-decoration:underline;">🎉 場次出席 ${eventCount}/${EVENTS.length}</span>
+        <div style="margin-top:10px;">
+          ${leaderActiveTab==="care" ? `
+          <div class="cat-block">
+            <div class="cat-label" style="color:${col.text};">💞 小天使彼此關心</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px;">
+              <span style="padding:4px 10px;border-radius:999px;background:${weeklyDone?col.bg:'#EDEBE3'};color:${weeklyDone?col.text:'#9A9284'};font-weight:600;">📞 每週通話${weeklyDone?` ✓${callTimeData[m]?`（${callTimeData[m]}）`:""}`:" 未完成"}</span>
+              <span style="padding:4px 10px;border-radius:999px;background:${dreamDone?col.bg:'#EDEBE3'};color:${dreamDone?col.text:'#9A9284'};font-weight:600;">⭐ 圓夢支持${dreamDone?` ✓${dreamTimeData[m]?`（${dreamTimeData[m]}）`:""}`:" 未完成"}</span>
+              <span style="padding:4px 10px;border-radius:999px;background:${monthDone?col.bg:'#EDEBE3'};color:${monthDone?col.text:'#9A9284'};font-weight:600;">🗓️ 月覆盤${monthDone?` ✓${reviewTimeData[m]?`（${reviewTimeData[m]}）`:""}`:" 未完成"}</span>
+            </div>
+          </div>
+          ` : `
+          <div class="cat-block">
+            <div class="cat-label" style="color:${col.text};">👶 關心一階新生</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px;">
+              <span style="padding:4px 10px;border-radius:999px;background:${studentCallDone?col.bg:'#EDEBE3'};color:${studentCallDone?col.text:'#9A9284'};font-weight:600;">📱 新生通話${studentCallDone?` ✓${studentCallTimeData[m]?`（${studentCallTimeData[m]}）`:""}`:" 未完成"}</span>
+              <span class="event-detail-btn" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:${eventCount>0?col.bg:'#EDEBE3'};color:${eventCount>0?col.text:'#9A9284'};font-weight:600;text-decoration:underline;">🎉 場次出席 ${eventCount}/${EVENTS.length}</span>
+            </div>
+          </div>
+          `}
         </div>
         <div class="mc-body">
           <div style="font-weight:700;color:${col.text};margin-bottom:2px;">🎉 場次出席明細</div>
@@ -733,6 +1148,7 @@ function renderLeaderDash(name, content){
                 ? `<table><tr><td><b>批次</b></td><td><b>小夥伴</b></td><td><b>介紹人</b></td><td><b>關懷員</b></td></tr>${mateRows}</table>`
                 : "搭檔目前尚無小夥伴配對紀錄")
             : "目前尚無搭檔小天使"}
+          ${reflectBlock}
         </div>
       </div>
     `;
@@ -753,12 +1169,13 @@ function selfSectionHtml(name, idPrefix){
   const mate = teammateOf(name);
   const rows = cs.map(c=>`<tr><td>${c.batch}</td><td>${c.name}${c.note?`【${c.note}】`:""}</td><td>${c.referrer||"—"}</td><td>${c.careWorker||"—"}</td></tr>`).join("");
 
-  const xp = pairCallXP(name, mate);
-  const stage = stageFor(xp);
-  const nextStage = nextStageFor(xp);
+  const xp = mate ? pairCallXP(name, mate) : soloScore(name);
+  const stageSet = mate ? RELATIONSHIP_STAGES : SOLO_STAGES;
+  const stage = stageFor(xp, stageSet);
+  const nextStage = nextStageFor(xp, stageSet);
   const pct = nextStage ? Math.round((xp-stage.min)/(nextStage.min-stage.min)*100) : 100;
 
-  const stageIdx = RELATIONSHIP_STAGES.indexOf(stage);
+  const stageIdx = stageSet.indexOf(stage);
   const avatarSize = 56 + stageIdx*6;
   const frameStyle = stage.frame==="gold-rainbow"
     ? `background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#E0A248,#E88F5C,#5B9BD5,#8FBFA6) border-box; border:4px solid transparent;`
@@ -800,39 +1217,73 @@ function selfSectionHtml(name, idPrefix){
     </div>
   ` : `
     <div class="card panel partner-card">
-      <div class="panel-title">💞 我的搭檔小天使</div>
-      <div class="empty-note">目前還沒有配對搭檔，先自己顧好小夥伴吧，也很棒！</div>
+      <div class="panel-title">🌟 我的陪伴成長</div>
+      <div class="partner-row">
+        <div class="partner-avatar-wrap">
+          <div class="partner-avatar" style="width:${avatarSize}px;height:${avatarSize}px;font-size:${avatarSize*0.5}px;${frameStyle}box-shadow:${stage.glow};position:relative;">
+            ${stage.avatar}
+            ${stage.deco?`<span style="position:absolute;top:-6px;right:-6px;font-size:16px;">${stage.deco}</span>`:""}
+          </div>
+          <div class="partner-name">${label(name)}</div>
+        </div>
+      </div>
+      <div class="stage-box">
+        <div class="stage-title">${stage.emoji} ${stage.name}</div>
+        <div class="stage-desc">${stage.desc}</div>
+        <div style="text-align:center;line-height:1.4;margin:8px 0;">${heartsHtml}</div>
+        <div class="stage-sub" style="text-align:center;">${nextStage ? `再累積 ${nextStage.min-xp} 顆愛心，就會升級成「${nextStage.emoji} ${nextStage.name}」！` : "已經是最高等級的傳奇守護者了，太猛了吧！"}</div>
+        <div class="stage-sub" style="margin-top:4px;color:${col.text};font-weight:700;text-align:center;">💕 已累積 ${xp} 顆愛心　（目前沒有搭檔，這是依你自己的陪伴累積計算）</div>
+      </div>
     </div>
   `;
 
   return `
-    ${partnerBlock}
-
-    <div class="card panel">
-      <div class="panel-title">💞 搭檔每週任務</div>
-      <div class="panel-sub">跟搭檔小天使一起做，累積愛心</div>
-      <div id="${idPrefix}CallToggle"></div>
+    <div class="tab-switch" id="${idPrefix}TabSwitch">
+      <button class="tab-switch-btn ${activeCareTab==="care"?"active":""}" data-tabtarget="care">💞 小天使互相關心</button>
+      <button class="tab-switch-btn ${activeCareTab==="student"?"active":""}" data-tabtarget="student">👶 陪伴一階新生</button>
     </div>
 
-    <div class="card panel">
-      <div class="panel-title">🗓️ ${monthLabel}　關懷員約覆盤</div>
-      <div class="panel-sub">每個月記得約關懷員聊聊，回顧一下這個月的陪伴狀況</div>
-      <div id="${idPrefix}MonthlyToggle"></div>
+    <div id="${idPrefix}TabCare" style="display:${activeCareTab==="care"?"block":"none"};">
+      ${partnerBlock}
+
+      <div class="card panel">
+        <div class="panel-title">📞 每週通話</div>
+        <div class="panel-sub">跟搭檔小天使每週固定聯絡一次，累積愛心</div>
+        <div style="font-size:12px;font-weight:700;color:${col.text};background:${col.bg};display:inline-block;padding:4px 12px;border-radius:999px;margin-bottom:10px;">🗓️ ${weekLabel}（週一至週日）</div>
+        <div id="${idPrefix}CallToggle"></div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-title">🗓️ ${monthLabel}　每月任務</div>
+        <div class="panel-sub">重點是陪搭檔一起執行圓夢計畫，關懷員覆盤也是每月一次</div>
+        <div id="${idPrefix}DreamToggle" style="margin-bottom:8px;"></div>
+        <div id="${idPrefix}MonthlyToggle"></div>
+        <div class="hint-note">💡 如果你們也想陪彼此去同學會／課後課，當然可以，切到「👶 陪伴一階新生」那頁一樣可以打卡，只是這不是搭檔關係的重點，重點還是圓夢支持喔！</div>
+      </div>
     </div>
 
-    <div class="card panel">
-      <div class="panel-title">🎉 同學會／課後課 場次打卡</div>
-      <div class="panel-sub">記錄「你自己」跟「小夥伴（新生）」有沒有一起到場。兩個都到，會有夢幻連動特效喔！</div>
-      <div id="${idPrefix}ArrivalToggles"></div>
-    </div>
+    <div id="${idPrefix}TabStudent" style="display:${activeCareTab==="student"?"block":"none"};">
+      <div class="card panel">
+        <div class="panel-title">📱 陪伴新生每週通話</div>
+        <div class="panel-sub">除了大場次，也記得每週跟你的小夥伴（新生）保持聯絡</div>
+        <div style="font-size:12px;font-weight:700;color:${col.text};background:${col.bg};display:inline-block;padding:4px 12px;border-radius:999px;margin-bottom:10px;">🗓️ ${weekLabel}（週一至週日）</div>
+        <div id="${idPrefix}StudentCallToggle"></div>
+      </div>
 
-    <div class="card panel">
-      <div class="panel-title">💌 我的小夥伴（新生／個案）</div>
-      <div class="panel-sub">你目前配對到的小夥伴</div>
-      ${cs.length ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <div class="card panel">
+        <div class="panel-title">🎉 同學會／課後課 場次打卡</div>
+        <div class="panel-sub">記錄「你自己」跟「小夥伴（新生）」有沒有一起到場。兩個都到，會有夢幻連動特效喔！</div>
+        <div id="${idPrefix}ArrivalToggles"></div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-title">💌 我的小夥伴（新生／個案）</div>
+        <div class="panel-sub">你目前配對到的小夥伴</div>
+        ${cs.length ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px;">
         <tr><td><b>批次</b></td><td><b>姓名</b></td><td><b>介紹人</b></td><td><b>關懷員</b></td></tr>
         ${rows}
       </table>` : `<div class="empty-note">目前還沒有配對到小夥伴</div>`}
+      </div>
     </div>
   `;
 }
@@ -841,29 +1292,109 @@ function wireSelfSectionEvents(name, idPrefix){
   const g = groupOf[name];
   const col = GROUP_COLORS[g];
 
+  const tabSwitch = document.getElementById(`${idPrefix}TabSwitch`);
+  if(tabSwitch){
+    tabSwitch.querySelectorAll(".tab-switch-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        activeCareTab = btn.dataset.tabtarget;
+        tabSwitch.querySelectorAll(".tab-switch-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`${idPrefix}TabCare`).style.display = activeCareTab==="care" ? "block" : "none";
+        document.getElementById(`${idPrefix}TabStudent`).style.display = activeCareTab==="student" ? "block" : "none";
+      });
+    });
+  }
+
   // 搭檔每週任務（每週通話 + 圓夢支持，都累積感情經驗值）
   const callBox = document.getElementById(`${idPrefix}CallToggle`);
   if(callBox){
     callBox.innerHTML = PARTNER_WEEKLY_TASKS.map(t=>{
       const done = isChecked(name, t.key);
+      const time = callTimeData[name] || "";
       return `<div class="member-card" style="cursor:pointer;" data-calltoggle="${t.key}">
         <div class="mc-head" style="cursor:pointer;">
           <span class="mc-name">${t.emoji} ${t.label}</span>
           <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！+10 顆愛心":"點一下打卡"}</span>
         </div>
+        ${done && time ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">🕐 通話時間：${time.replace(/</g,"&lt;")}</div>` : ""}
       </div>`;
     }).join("");
     callBox.querySelectorAll("[data-calltoggle]").forEach(el=>{
-      el.addEventListener("click", ()=>{
+      el.addEventListener("click", async ()=>{
         const key = el.dataset.calltoggle;
         const cur = isChecked(name, key);
-        setChecked(name, key, !cur);
-        if(!cur) showToast("✨ 完成！愛心 +10（如果搭檔也做了，再加碼 +10）");
+        if(!cur){
+          const time = await customPrompt("請輸入通話時間（例如：8/20 20:30）：", "");
+          if(time===null) return;
+          setChecked(name, key, true);
+          setCallTime(name, time);
+          showToast("✨ 完成！愛心 +10（如果搭檔也做了，再加碼 +10）");
+          const score = await customRating("藉事練心 🪞", "為自己這次在給出愛的用心程度，1-10分打一下分數與紀錄心得吧！");
+          saveSelfScore(`village/selfScore/call/${weekKey}/${encodeURIComponent(name)}`, score);
+        } else {
+          setChecked(name, key, false);
+        }
       });
     });
   }
 
-  // 每月關懷員約覆盤（個人打卡，跟感情經驗值無關，是提醒性質）
+  // 陪伴新生每週通話
+  const studentCallBox = document.getElementById(`${idPrefix}StudentCallToggle`);
+  if(studentCallBox){
+    const t = STUDENT_WEEKLY_TASK;
+    const done = isChecked(name, t.key);
+    const time = studentCallTimeData[name] || "";
+    studentCallBox.innerHTML = `<div class="member-card" style="cursor:pointer;" data-studentcalltoggle="1">
+      <div class="mc-head" style="cursor:pointer;">
+        <span class="mc-name">${t.emoji} ${t.label}</span>
+        <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！":"點一下打卡"}</span>
+      </div>
+      ${done && time ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">🕐 通話時間：${time.replace(/</g,"&lt;")}</div>` : ""}
+    </div>`;
+    studentCallBox.querySelector("[data-studentcalltoggle]").addEventListener("click", async ()=>{
+      const cur = isChecked(name, t.key);
+      if(!cur){
+        const time = await customPrompt("請輸入跟新生通話的時間（例如：8/20 20:30）：", "");
+        if(time===null) return;
+        setChecked(name, t.key, true);
+        setStudentCallTime(name, time);
+        showToast("📱 完成！記得每週都要保持聯絡喔");
+        const score = await customRating("藉事練心 🪞", "為自己這次在給出愛的用心程度，1-10分打一下分數與紀錄心得吧！");
+        saveSelfScore(`village/selfScore/studentCall/${weekKey}/${encodeURIComponent(name)}`, score);
+      } else {
+        setChecked(name, t.key, false);
+      }
+    });
+  }
+
+  // 每月圓夢支持（跟搭檔互相做，累積愛心）
+  const dreamBox = document.getElementById(`${idPrefix}DreamToggle`);
+  if(dreamBox){
+    const done = isDreamDone(name);
+    dreamBox.innerHTML = `<div class="member-card" style="cursor:pointer;" data-dreamtoggle="1">
+      <div class="mc-head" style="cursor:pointer;">
+        <span class="mc-name">⭐ 這個月已完成圓夢支持</span>
+        <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 完成了！+10 顆愛心":"點一下打卡"}</span>
+      </div>
+      ${done && dreamTimeData[name] ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">🕐 時間：${dreamTimeData[name].replace(/</g,"&lt;")}</div>` : ""}
+    </div>`;
+    dreamBox.querySelector("[data-dreamtoggle]").addEventListener("click", async ()=>{
+      const cur = isDreamDone(name);
+      if(!cur){
+        const time = await customPrompt("請輸入圓夢支持的時間（例如：8/20 下午）：", "");
+        if(time===null) return;
+        setDreamDone(name, true);
+        setDreamTime(name, time);
+        showToast("⭐ 圓夢支持完成！愛心 +10（如果搭檔這個月也做了，再加碼 +10）");
+        const score = await customRating("藉事練心 🪞", "為自己這次在給出愛的用心程度，1-10分打一下分數與紀錄心得吧！");
+        saveSelfScore(`village/selfScore/dream/${monthKey}/${encodeURIComponent(name)}`, score);
+      } else {
+        setDreamDone(name, false);
+      }
+    });
+  }
+
+  // 每月關懷員約覆盤（個人打卡，也會累積愛心）
   const monthlyBox = document.getElementById(`${idPrefix}MonthlyToggle`);
   if(monthlyBox){
     const done = isMonthlyDone(name);
@@ -872,11 +1403,21 @@ function wireSelfSectionEvents(name, idPrefix){
         <span class="mc-name">🗓️ 這個月已約關懷員覆盤</span>
         <span class="mc-badge" style="${done?`background:${col.bg};color:${col.text};`:""}">${done?"✓ 約過了":"點一下打卡"}</span>
       </div>
+      ${done && reviewTimeData[name] ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">🕐 時間：${reviewTimeData[name].replace(/</g,"&lt;")}</div>` : ""}
     </div>`;
-    monthlyBox.querySelector("[data-monthlytoggle]").addEventListener("click", ()=>{
+    monthlyBox.querySelector("[data-monthlytoggle]").addEventListener("click", async ()=>{
       const cur = isMonthlyDone(name);
-      setMonthlyDone(name, !cur);
-      if(!cur) showToast("🗓️ 太棒了，這個月的關懷員覆盤完成打卡！愛心 +10");
+      if(!cur){
+        const time = await customPrompt("請輸入覆盤的時間（例如：8/20 下午）：", "");
+        if(time===null) return;
+        setMonthlyDone(name, true);
+        setReviewTime(name, time);
+        showToast("🗓️ 太棒了，這個月的關懷員覆盤完成打卡！愛心 +10");
+        const score = await customRating("藉事練心 🪞", "為自己這次在給出愛的用心程度，1-10分打一下分數與紀錄心得吧！");
+        saveSelfScore(`village/selfScore/review/${monthKey}/${encodeURIComponent(name)}`, score);
+      } else {
+        setMonthlyDone(name, false);
+      }
     });
   }
 
@@ -902,8 +1443,10 @@ function wireSelfSectionEvents(name, idPrefix){
           ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;">📝 ${ev.regNote}${ev.regNote!=="報名連結尚未公布" ? `　<button class="mini-toggle" style="min-width:90px;width:auto;display:inline-block;padding:5px 12px;${registered?"background:var(--sage);border-color:var(--sage);color:#fff;":""}" data-regtoggle="${ev.key}">${registered?"✅ 已報名":"點一下標記已報名"}</button>` : ""}</div>`
           : "";
       return `
-        <div class="arrival-row ${rowHighlight}">
-          <div class="arrival-label">${ev.emoji} ${ev.date}　${ev.time}　${ev.type}${ev.topic?`「${ev.topic}」`:""}${linked ? "　🌈 夢幻連動！" : ""}</div>
+        <div class="arrival-row ${rowHighlight}" style="border-left-color:${EVENT_TYPE_COLOR[ev.type]||'var(--sage)'};">
+          <div class="arrival-date-badge" style="background:${EVENT_TYPE_COLOR[ev.type]||'var(--sage)'};">🗓️ ${ev.date}　${ev.time}</div>
+          <div class="arrival-headline">${ev.emoji} ${ev.type}${ev.topic?`「${ev.topic}」`:""}</div>
+          ${linked ? `<div style="font-size:13px;font-weight:700;color:var(--amber-deep);margin-bottom:8px;">🌈 夢幻連動！</div>` : ""}
           ${ev.location ? `<div style="font-size:11px;color:var(--ink-soft);margin-bottom:8px;">📍 ${ev.location}</div>` : ""}
           ${regBlock}
           <div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">${ev.buddyRequired?"👼 我：":"我："}</div>
@@ -921,23 +1464,45 @@ function wireSelfSectionEvents(name, idPrefix){
           ${buddyAbsent ? `<div class="reason-note">原因：${(buddyReason||"（未填寫）").replace(/</g,"&lt;")}</div>` : ""}
           ` : ""}
           ${(ev.buddyRequired && !linked && meArrived) ? `<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">💡 小提示：跟搭檔通個電話分享一下這場的收穫，也能觸發夢幻連動喔！</div>` : ""}
+          <div class="score-note-block">
+            <div class="score-note-label">🪞 藉事練心：為自己這次在給出愛的用心程度，1-10分打一下分數與紀錄心得吧！</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <input type="range" min="1" max="10" value="${eventScoreData[ev.key]&&eventScoreData[ev.key][name] || 5}" class="inline-score-slider" data-scoreevent="${ev.key}" style="flex:1;accent-color:var(--sage);">
+              <span class="inline-score-value" data-scorevalue="${ev.key}">${eventScoreData[ev.key]&&eventScoreData[ev.key][name] || 5} 分</span>
+            </div>
+            <textarea class="score-note-input" data-noteevent="${ev.key}" placeholder="留下這場的心得（選填）">${(eventNoteData[ev.key]&&eventNoteData[ev.key][name])||""}</textarea>
+            <button class="mini-toggle" style="width:100%;margin-top:6px;" data-savenote="${ev.key}">💾 儲存分數與心得</button>
+          </div>
         </div>
       `;
     }).join("");
     arrivalBox.querySelectorAll("[data-evstatus]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      btn.addEventListener("click", async ()=>{
         const key = btn.dataset.evstatus;
         const who = btn.dataset.who;
         const status = btn.dataset.status;
         if(status==="absent"){
-          const reason = window.prompt(who==="me" ? "請輸入你未能抵達的原因：" : "請輸入小夥伴未能抵達的原因：", "");
+          const alreadyAbsent = who==="me" ? isEventAbsent(name, key) : isEventBuddyAbsent(name, key);
+          if(alreadyAbsent){
+            if(who==="me") setEventStatus(name, key, null, "");
+            else setBuddyEventStatus(name, key, null, "");
+            return;
+          }
+          const reason = await customPrompt(who==="me" ? "請輸入你未能抵達的原因：" : "請輸入小夥伴未能抵達的原因：", "");
           if(reason===null) return;
           if(who==="me") setEventStatus(name, key, "absent", reason);
           else setBuddyEventStatus(name, key, "absent", reason);
         } else {
+          const alreadyArrived = who==="me" ? isEventChecked(name, key) : isEventBuddyArrived(name, key);
+          if(alreadyArrived){
+            if(who==="me") setEventStatus(name, key, null, "");
+            else setBuddyEventStatus(name, key, null, "");
+            showToast("↩️ 已取消打卡，改回沒有按");
+            return;
+          }
           if(who==="me"){
             setEventStatus(name, key, "arrived", "");
-            showToast("🎉 出席打卡完成！愛心 +10");
+            showToast("🎉 出席打卡完成！愛心 +10，記得在下面留個分數跟心得喔");
           } else {
             setBuddyEventStatus(name, key, "arrived", "");
           }
@@ -950,6 +1515,23 @@ function wireSelfSectionEvents(name, idPrefix){
         const cur = isRegistered(name, key);
         setRegistered(name, key, !cur);
         if(!cur) showToast("📝 已標記為報名完成！");
+      });
+    });
+    arrivalBox.querySelectorAll("[data-scoreevent]").forEach(slider=>{
+      slider.addEventListener("input", ()=>{
+        const key = slider.dataset.scoreevent;
+        const valueEl = arrivalBox.querySelector(`[data-scorevalue="${key}"]`);
+        if(valueEl) valueEl.textContent = `${slider.value} 分`;
+      });
+    });
+    arrivalBox.querySelectorAll("[data-savenote]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const key = btn.dataset.savenote;
+        const slider = arrivalBox.querySelector(`[data-scoreevent="${key}"]`);
+        const noteInput = arrivalBox.querySelector(`[data-noteevent="${key}"]`);
+        setEventScore(name, key, Number(slider.value));
+        setEventNote(name, key, noteInput.value);
+        showToast("💾 分數與心得已儲存！");
       });
     });
   }
@@ -1000,6 +1582,15 @@ nameInput.addEventListener("input", ()=>{ renderSuggestions(nameInput.value); su
 document.addEventListener("click", e=>{
   if(!suggestBox.contains(e.target) && e.target!==nameInput) suggestBox.classList.remove("show");
 });
+
+const connStatusEl = document.getElementById("connStatus");
+if(fbEnabled){
+  connStatusEl.textContent = "🟢 已連上雲端（大家共用同一份資料）";
+  connStatusEl.style.color = "var(--sage-deep)";
+} else {
+  connStatusEl.textContent = "🔴 尚未連上雲端（目前是本機模式，只有這台裝置看得到）";
+  connStatusEl.style.color = "#C0435C";
+}
 
 const savedName = localStorage.getItem("lastLoginName");
 if(savedName) nameInput.value = savedName;
