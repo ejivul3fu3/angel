@@ -1095,7 +1095,8 @@ function renderLeaderDash(name, content){
         if(reasons.length) reasonHtml = `<br><span style="font-weight:400;font-size:11px;">${reasons.map(r=>r.replace(/</g,"&lt;")).join("；")}</span>`;
       }
       const regTag = isRegistered(m, ev.key) ? `<br><span style="font-weight:400;font-size:11px;color:var(--sage-deep);">📝 已報名</span>` : `<br><span style="font-weight:400;font-size:11px;color:#9A9284;">📝 尚未報名</span>`;
-      return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}${regTag}</td></tr>`;
+      const helpBtn = !meDone ? `<br><button class="mini-toggle" style="width:auto;min-width:0;padding:3px 10px;font-size:10.5px;margin-top:4px;" data-helpcheckin="${ev.key}" data-helpname="${m}">✅ 幫他標記已到</button>` : "";
+      return `<tr><td>${ev.date}</td><td>${ev.type}${ev.topic?`「${ev.topic}」`:""}</td><td style="color:${color};font-weight:700;white-space:nowrap;">${icon} ${text}${reasonHtml}${regTag}${helpBtn}</td></tr>`;
     }).join("");
 
     const reflectLines = [];
@@ -1165,6 +1166,18 @@ function renderLeaderDash(name, content){
     if(evBtn){
       evBtn.addEventListener("click", ()=> card.classList.add("open"));
     }
+  });
+  list.querySelectorAll("[data-helpcheckin]").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      const key = btn.dataset.helpcheckin;
+      const helpName = btn.dataset.helpname;
+      const ev = EVENTS.find(x=>x.key===key);
+      const ok = await customConfirm(`確定「${helpName}」有到「${ev.type}${ev.topic?`「${ev.topic}」`:""}」（${ev.date}），幫他補打卡嗎？`);
+      if(!ok) return;
+      setEventStatus(helpName, key, "arrived", "");
+      showToast(`✅ 已幫 ${helpName} 補打卡`);
+    });
   });
 }
 
